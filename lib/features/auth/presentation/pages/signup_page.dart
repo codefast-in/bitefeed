@@ -6,6 +6,9 @@ class SignupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.height < 600;
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -13,7 +16,7 @@ class SignupPage extends StatelessWidget {
             Stack(
               children: [
                 Container(
-                  height: 250,
+                  height: isSmallScreen ? 200 : 250,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -26,29 +29,29 @@ class SignupPage extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 50,
+                  top: isSmallScreen ? 30 : 50,
                   left: 0,
                   right: 0,
                   child: Column(
                     children: [
                       Image.asset(
                         'assets/icons/appIcon.png',
-                        height: 80,
+                        height: isSmallScreen ? 60 : 80,
                       ),
                       const SizedBox(height: 12),
-                      const Text(
+                      Text(
                         'BITEFEED',
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: isSmallScreen ? 22 : 28,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           letterSpacing: 2,
                         ),
                       ),
-                      const Text(
+                      Text(
                         'SAVE & SHARE YOUR TASTY ADVENTURES',
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: isSmallScreen ? 8 : 10,
                           color: Colors.white70,
                           fontWeight: FontWeight.w500,
                         ),
@@ -117,73 +120,13 @@ class SignupPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildLabel('Password'),
                   const SizedBox(height: 8),
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: '***********',
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Image.asset('assets/icons/lockIcon.png', width: 20, height: 20),
-                      ),
-                      suffixIcon: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Image.asset('assets/icons/eyeIcon.png', width: 20, height: 20),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFF9881F)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFFF9881F)),
-                      ),
-                    ),
-                  ),
+                  _buildPasswordField(),
                   const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Strong',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                    ],
-                  ),
+                  _buildStrengthIndicator(),
                   const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFF9881F), Color(0xFFED1C24)],
-                        ),
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                        ),
-                        child: const Text(
-                          'Continue',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                      ),
-                    ),
+                  _buildGradientButton(
+                    text: 'Continue',
+                    onPressed: () {},
                   ),
                   const SizedBox(height: 24),
                   Row(
@@ -239,6 +182,81 @@ class SignupPage extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return TextField(
+      obscureText: true,
+      decoration: InputDecoration(
+        hintText: '***********',
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Image.asset('assets/icons/lockIcon.png', width: 20, height: 20),
+        ),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Image.asset('assets/icons/eyeIcon.png', width: 20, height: 20),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFF9881F)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFF9881F)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStrengthIndicator() {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 6,
+            decoration: BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        const Text(
+          'Strong',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGradientButton({required String text, required VoidCallback onPressed}) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFF9881F), Color(0xFFED1C24)],
+          ),
+          borderRadius: BorderRadius.circular(28),
+        ),
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(28),
+            ),
+          ),
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
         ),
       ),
     );

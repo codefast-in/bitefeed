@@ -46,7 +46,7 @@ class CreateNewPasswordPage extends StatelessWidget {
               _buildLabel('Confirm Password'),
               const SizedBox(height: 8),
               _buildPasswordField(),
-              const SizedBox(height: size.height * 0.1),
+              SizedBox(height: size.height * 0.1),
               SizedBox(
                 width: double.infinity,
                 height: 56,

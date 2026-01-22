@@ -73,7 +73,7 @@ class VerificationCodePage extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: size.height * 0.15),
+              SizedBox(height: size.height * 0.15),
               SizedBox(
                 width: double.infinity,
                 height: 56,
