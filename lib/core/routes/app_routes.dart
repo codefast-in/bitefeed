@@ -1,3 +1,4 @@
+import 'package:bitefeed/features/auth/presentation/pages/splash.dart';
 import 'package:flutter/material.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
@@ -31,6 +32,7 @@ import '../../features/messages/presentation/pages/chat_page.dart';
 import '../../features/messages/presentation/pages/group_members_page.dart';
 
 class AppRoutes {
+  static const String splash = '/splash';
   static const String login = '/login';
   static const String signup = '/signup';
   static const String forgotPassword = '/forgot-password';
@@ -63,6 +65,7 @@ class AppRoutes {
   static const String groupMembers = '/group-members';
 
   static Map<String, WidgetBuilder> get routes => {
+    splash: (context) => const SplashScreen(),
     login: (context) => const LoginPage(),
     signup: (context) => const SignupPage(),
     forgotPassword: (context) => const ForgotPasswordPage(),

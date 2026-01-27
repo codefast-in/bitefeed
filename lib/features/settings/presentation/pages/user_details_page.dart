@@ -25,7 +25,7 @@ class UserDetailsPage extends StatelessWidget {
               'assets/icons/otherUserDetailsOptionsIcon.png',
               width: 24,
               height: 24,
-              color: Colors.white,
+              // color: Colors.white,
             ),
             color: Colors.white,
             onSelected: (value) {
@@ -301,17 +301,10 @@ class UserDetailsPage extends StatelessWidget {
                 Positioned(
                   bottom: 12,
                   right: 12,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: AppColors.primaryOrange,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.chat_bubble_outline,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  child: Image.asset(
+                    'assets/icons/postMessageIcon.png',
+                    width: 40,
+                    height: 40,
                   ),
                 ),
               ],
@@ -332,7 +325,11 @@ class UserDetailsPage extends StatelessWidget {
                     const SizedBox(width: 4),
                     const Text('85'),
                     const Spacer(),
-                    const Icon(Icons.bookmark_border, size: 20),
+            Image.asset(
+              'assets/icons/postSaveIcon.png',
+              width: 20,
+              height: 20,
+            ),
                   ],
                 ),
                 const SizedBox(height: 8),

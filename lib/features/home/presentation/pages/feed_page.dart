@@ -63,7 +63,11 @@ class FeedPage extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  bottom: 100,
+                ),
                 itemCount: 2,
                 itemBuilder: (context, index) {
                   return _buildFeedItem(context, index);
@@ -164,7 +168,7 @@ class FeedPage extends StatelessWidget {
                   bottom: 12,
                   right: 12,
                   child: Image.asset(
-                    'assets/icons/postCommentIcon.png',
+                    'assets/icons/postMessageIcon.png',
                     width: 40,
                     height: 40,
                   ),

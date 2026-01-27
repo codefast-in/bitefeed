@@ -17,112 +17,114 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: _buildDrawer(context),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.only(top: 60, bottom: 20),
-            decoration: const BoxDecoration(
-              gradient: AppColors.primaryGradient,
-            ),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: Image.asset(
-                          'assets/icons/whiteBackIcon.png',
-                          width: 24,
-                          height: 24,
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const Text(
-                        'SETTINGS',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      Builder(
-                        builder: (context) => IconButton(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(top: 60, bottom: 20),
+              decoration: const BoxDecoration(
+                gradient: AppColors.primaryGradient,
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
                           icon: Image.asset(
-                            'assets/icons/drawerMenuIcon.png',
+                            'assets/icons/whiteBackIcon.png',
                             width: 24,
                             height: 24,
                           ),
-                          onPressed: () => Scaffold.of(context).openDrawer(),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Image.asset(
-                            'assets/images/userProfilePhoto.png',
-                            fit: BoxFit.cover,
+                        const Text(
+                          'SETTINGS',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Jack Smiths',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                        Builder(
+                          builder: (context) => IconButton(
+                            icon: Image.asset(
+                              'assets/icons/drawerMenuIcon.png',
+                              width: 24,
+                              height: 24,
+                            ),
+                            onPressed: () => Scaffold.of(context).openDrawer(),
+                          ),
                         ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 3),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.asset(
+                              'assets/images/userProfilePhoto.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Jack Smiths',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildStatItem(
+                        '26',
+                        'My Bites',
+                        onTap: () =>
+                            Navigator.pushNamed(context, AppRoutes.myPosts),
+                      ),
+                      Container(height: 40, width: 1, color: Colors.white24),
+                      _buildStatItem(
+                        '85k',
+                        'Followers',
+                        onTap: () =>
+                            Navigator.pushNamed(context, AppRoutes.followers),
+                      ),
+                      Container(height: 40, width: 1, color: Colors.white24),
+                      _buildStatItem(
+                        '150',
+                        'Following',
+                        onTap: () =>
+                            Navigator.pushNamed(context, AppRoutes.following),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildStatItem(
-                      '26',
-                      'My Bites',
-                      onTap: () =>
-                          Navigator.pushNamed(context, AppRoutes.myPosts),
-                    ),
-                    Container(height: 40, width: 1, color: Colors.white24),
-                    _buildStatItem(
-                      '85k',
-                      'Followers',
-                      onTap: () =>
-                          Navigator.pushNamed(context, AppRoutes.followers),
-                    ),
-                    Container(height: 40, width: 1, color: Colors.white24),
-                    _buildStatItem(
-                      '150',
-                      'Following',
-                      onTap: () =>
-                          Navigator.pushNamed(context, AppRoutes.following),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: GridView.builder(
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.all(8),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
@@ -140,8 +142,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 );
               },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -49,69 +49,77 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      child: Row(
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Expanded(
-            child: _buildNavItem(
-              0,
-              'assets/icons/tabFeedInactiveIcon.png',
-              'assets/icons/tabFeedActiveIcon.png',
-              'Feed',
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: _buildNavItem(
+                  0,
+                  'assets/icons/tabFeedInactiveIcon.png',
+                  'assets/icons/tabFeedActiveIcon.png',
+                  'Feed',
+                ),
+              ),
+              Expanded(
+                child: _buildNavItem(
+                  1,
+                  'assets/icons/tabBitesInactiveIcon.png',
+                  'assets/icons/tabBitesActiveIcon.png',
+                  'Bites',
+                ),
+              ),
+              const Expanded(child: SizedBox()), // Space for elevated button
+              Expanded(
+                child: _buildNavItem(
+                  3,
+                  'assets/icons/tabMessageInactiveIocn.png',
+                  'assets/icons/tabMessageActiveIcon.png',
+                  'Message',
+                ),
+              ),
+              Expanded(
+                child: _buildNavItem(
+                  4,
+                  'assets/icons/tabSearchInactiveIcon.png',
+                  'assets/icons/tabSearchActiveIcon.png',
+                  'Search',
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: _buildNavItem(
-              1,
-              'assets/icons/tabBitesInactiveIcon.png',
-              'assets/icons/tabBitesActiveIcon.png',
-              'Bites',
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => showCreateBiteSheet(context),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 24),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: AppColors.primaryGradient,
-
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 5,
+          Positioned(
+            top: -20,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: GestureDetector(
+                onTap: () => showCreateBiteSheet(context),
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: AppColors.primaryGradient,
+                    border: Border.all(color: Colors.white, width: 4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryRed.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
                       ),
-                    ),
-                    child: Center(
-                      child: Image.asset(
-                        'assets/icons/tabCameraIcon.png',
-                        width: 24,
-                        height: 24,
-                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/icons/tabCameraIcon.png',
+                      width: 28,
+                      height: 28,
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-          Expanded(
-            child: _buildNavItem(
-              3,
-              'assets/icons/tabMessageInactiveIocn.png',
-              'assets/icons/tabMessageActiveIcon.png',
-              'Message',
-            ),
-          ),
-          Expanded(
-            child: _buildNavItem(
-              4,
-              'assets/icons/tabSearchInactiveIcon.png',
-              'assets/icons/tabSearchActiveIcon.png',
-              'Search',
             ),
           ),
         ],

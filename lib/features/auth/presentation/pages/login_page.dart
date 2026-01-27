@@ -121,25 +121,32 @@ class _LoginPageState extends State<LoginPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                    Container(
-                    padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.borderGrey),
-                ),
-                child: Image.asset( 'assets/icons/googleIcon.png', width: 30, height: 30),
-              ),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.borderGrey),
+                          ),
+                          child: Image.asset(
+                            'assets/icons/googleIcon.png',
+                            width: 30,
+                            height: 30,
+                          ),
+                        ),
                         const SizedBox(width: 20),
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(color: AppColors.borderGrey),
-                            color: AppColors.black
+                            color: AppColors.black,
                           ),
-                          child: Image.asset( 'assets/icons/appleIcon.png', width: 30, height: 30),
+                          child: Image.asset(
+                            'assets/icons/appleIcon.png',
+                            width: 30,
+                            height: 30,
+                          ),
                         ),
-
                       ],
                     ),
                     const SizedBox(height: 32),
