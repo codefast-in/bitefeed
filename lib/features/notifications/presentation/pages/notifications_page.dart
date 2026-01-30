@@ -76,69 +76,75 @@ class NotificationsPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      body: Column(
-        children: [
-          // Gradient Header
-          Container(
-            decoration: const BoxDecoration(
-              gradient: AppColors.primaryGradient,
-            ),
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 16,
-                ),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new,
-                        color: Colors.white,
-                        size: 24,
+      body: SafeArea(
+        top: false,
+        left: false,
+        right: false,
+        bottom: true,
+        child: Column(
+          children: [
+            // Gradient Header
+            Container(
+              decoration: const BoxDecoration(
+                gradient: AppColors.primaryGradient,
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 16,
+                  ),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                       ),
-                    ),
-                    const Expanded(
-                      child: Center(
-                        child: Text(
-                          'NOTIFICATIONS',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 1.5,
+                      const Expanded(
+                        child: Center(
+                          child: Text(
+                            'NOTIFICATIONS',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 1.5,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 24), // Balance the back button
-                  ],
+                      const SizedBox(width: 24), // Balance the back button
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          // Notifications List
-          Expanded(
-            child: Container(
-              color: const Color(0xFFF5F5F5),
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: notifications.length,
-                itemBuilder: (context, index) {
-                  final notification = notifications[index];
-                  return _buildNotificationItem(
-                    avatar: notification['avatar']!,
-                    name: notification['name']!,
-                    action: notification['action']!,
-                    time: notification['time']!,
-                  );
-                },
+            // Notifications List
+            Expanded(
+              child: Container(
+                color: const Color(0xFFF5F5F5),
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: notifications.length,
+                  itemBuilder: (context, index) {
+                    final notification = notifications[index];
+                    return _buildNotificationItem(
+                      avatar: notification['avatar']!,
+                      name: notification['name']!,
+                      action: notification['action']!,
+                      time: notification['time']!,
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

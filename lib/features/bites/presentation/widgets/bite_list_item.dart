@@ -100,8 +100,8 @@ class BiteListItem extends StatelessWidget {
                   child: Image.asset(
                     'assets/icons/shearColorIcon.png',
                     fit: BoxFit.cover,
-                    height: 24,
-                    width: 24,
+                    height: 16,
+                    width: 16,
                   ),
                 ),
               ),

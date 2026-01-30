@@ -34,12 +34,16 @@ class FollowingPage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return _buildUserItem(context, index);
-        },
+      body: SafeArea(
+        bottom: true,
+        top:false,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: 10,
+          itemBuilder: (context, index) {
+            return _buildUserItem(context, index);
+          },
+        ),
       ),
     );
   }

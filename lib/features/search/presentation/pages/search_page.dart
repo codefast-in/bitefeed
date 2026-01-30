@@ -206,7 +206,7 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                     ],
                     if (_filteredNearby.isNotEmpty) ...[
-                      const SizedBox(height: 24),
+                      // const SizedBox(height: 24),
                       const Text(
                         'Near By You',
                         style: TextStyle(
@@ -312,8 +312,8 @@ class _SearchPageState extends State<SearchPage> {
               child: Image.asset(
                 'assets/icons/shearColorIcon.png',
                 fit: BoxFit.cover,
-                height: 24,
-                width: 24,
+                height: 16,
+                width: 16,
               ),
             ),
           ],

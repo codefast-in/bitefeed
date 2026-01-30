@@ -1,3 +1,4 @@
+import 'package:bitefeed/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -59,23 +60,29 @@ class _SendToPageState extends State<SendToPage> {
         ],
         elevation: 0,
       ),
-      body: Stack(
-        children: [
-          ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: 9,
-            itemBuilder: (context, index) {
-              return _buildContactItem(context, index);
-            },
-          ),
-          if (_selectedIndices.length > 1)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: _buildSendOptions(),
+      body: SafeArea(
+        top: false,
+        left: false,
+        right: false,
+        bottom: true,
+        child: Stack(
+          children: [
+            ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: 9,
+              itemBuilder: (context, index) {
+                return _buildContactItem(context, index);
+              },
             ),
-        ],
+            if (_selectedIndices.length > 1)
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: _buildSendOptions(),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -108,7 +115,13 @@ class _SendToPageState extends State<SendToPage> {
               borderRadius: BorderRadius.circular(28),
             ),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.chat,
+                  arguments: "Sarah Johnson",
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 shadowColor: Colors.transparent,
@@ -128,7 +141,13 @@ class _SendToPageState extends State<SendToPage> {
             height: 56,
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.chat,
+                  arguments: "Foody Group",
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 shape: RoundedRectangleBorder(

@@ -67,6 +67,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -238,6 +239,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       controller: controller,
       obscureText: !isVisible,
       validator: validator,
+      onChanged: (value) {
+        // Trigger validation on change
+        if (mounted) setState(() {});
+      },
       decoration: InputDecoration(
         // Adding border and styling
         filled: true,

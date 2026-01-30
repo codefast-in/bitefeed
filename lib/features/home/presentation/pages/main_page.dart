@@ -37,8 +37,10 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget _buildBottomBar() {
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+
     return Container(
-      height: 80,
+      height: 80 + bottomPadding,
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -52,42 +54,45 @@ class _MainPageState extends State<MainPage> {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildNavItem(
-                  0,
-                  'assets/icons/tabFeedInactiveIcon.png',
-                  'assets/icons/tabFeedActiveIcon.png',
-                  'Feed',
+          Padding(
+            padding: EdgeInsets.only(bottom: bottomPadding),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildNavItem(
+                    0,
+                    'assets/icons/tabFeedInactiveIcon.png',
+                    'assets/icons/tabFeedActiveIcon.png',
+                    'Feed',
+                  ),
                 ),
-              ),
-              Expanded(
-                child: _buildNavItem(
-                  1,
-                  'assets/icons/tabBitesInactiveIcon.png',
-                  'assets/icons/tabBitesActiveIcon.png',
-                  'Bites',
+                Expanded(
+                  child: _buildNavItem(
+                    1,
+                    'assets/icons/tabBitesInactiveIcon.png',
+                    'assets/icons/tabBitesActiveIcon.png',
+                    'Bites',
+                  ),
                 ),
-              ),
-              const Expanded(child: SizedBox()), // Space for elevated button
-              Expanded(
-                child: _buildNavItem(
-                  3,
-                  'assets/icons/tabMessageInactiveIocn.png',
-                  'assets/icons/tabMessageActiveIcon.png',
-                  'Message',
+                const Expanded(child: SizedBox()), // Space for elevated button
+                Expanded(
+                  child: _buildNavItem(
+                    3,
+                    'assets/icons/tabMessageInactiveIocn.png',
+                    'assets/icons/tabMessageActiveIcon.png',
+                    'Message',
+                  ),
                 ),
-              ),
-              Expanded(
-                child: _buildNavItem(
-                  4,
-                  'assets/icons/tabSearchInactiveIcon.png',
-                  'assets/icons/tabSearchActiveIcon.png',
-                  'Search',
+                Expanded(
+                  child: _buildNavItem(
+                    4,
+                    'assets/icons/tabSearchInactiveIcon.png',
+                    'assets/icons/tabSearchActiveIcon.png',
+                    'Search',
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           Positioned(
             top: -20,

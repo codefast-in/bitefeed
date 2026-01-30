@@ -81,7 +81,15 @@ class BlockListPage extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: AppColors.primaryGradient,
               borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 12,
+                  offset: const Offset(0, 4), // subtle lift
+                ),
+              ],
             ),
+
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(

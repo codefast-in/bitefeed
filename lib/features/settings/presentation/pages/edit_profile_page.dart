@@ -75,6 +75,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -142,6 +143,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 controller: _nameController,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter your name' : null,
+                onChanged: (value) => setState(() {}),
                 decoration: _inputDecoration('Jack Smiths'),
               ),
 
@@ -156,6 +158,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 controller: _usernameController,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter a username' : null,
+                onChanged: (value) => setState(() {}),
                 decoration: _inputDecoration('Jack'),
               ),
 
@@ -174,6 +177,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   if (!value.contains('@')) return 'Please enter a valid email';
                   return null;
                 },
+                onChanged: (value) => setState(() {}),
                 keyboardType: TextInputType.emailAddress,
                 decoration: _inputDecoration('jacksmith123@gmail.com'),
               ),

@@ -105,12 +105,63 @@ class MyPostsPage extends StatelessWidget {
                   ],
                 ),
               ),
+              // Star rating indicator
+
               Positioned(
                 top: 12,
                 right: 12,
-                child: IconButton(
-                  icon: const Icon(Icons.more_vert, color: Colors.white),
-                  onPressed: () {}, // Edit/Delete options usually
+                child: PopupMenuButton<String>(
+                  icon: Image.asset("assets/icons/otherUserDetailsOptionsIcon.png",height: 20,width: 20,),
+                  color: Colors.white,
+                  padding: EdgeInsets.zero,
+                  onSelected: (value) {
+                    if (value == 'Delete') {
+                      // Show delete confirmation dialog
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Delete Post'),
+                          content: const Text(
+                            'Are you sure you want to delete this post?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Post Deleted')),
+                                );
+                              },
+                              child: const Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      const PopupMenuItem<String>(
+                        value: 'Delete',
+                        height: 40,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          'Delete Post',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ];
+                  },
                 ),
               ),
             ],
@@ -130,18 +181,38 @@ class MyPostsPage extends StatelessWidget {
                     const SizedBox(width: 4),
                     const Text('85'),
                     const SizedBox(width: 16),
-                    const Icon(Icons.send, size: 20), // Share icon
+                    Image.asset(
+                      'assets/icons/postShearIcon.png',
+                      height: 20,
+                      width: 20,
+                    ), // Share icon
                     const Spacer(),
                     const Icon(Icons.bookmark_border, size: 20),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  index % 2 == 0 ? 'The Golden Fork' : 'Morning Brew Café',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      index % 2 == 0 ? 'The Golden Fork' : 'Morning Brew Café',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Row(
+                      children: List.generate(
+                        5,
+                            (index) => const Icon(
+                          Icons.star,
+                          color: Colors.orange,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 4),
                 const Text(

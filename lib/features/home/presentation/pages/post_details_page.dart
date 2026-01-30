@@ -60,28 +60,30 @@ class PostDetailsPage extends StatelessWidget {
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
                           child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              color: Colors.black,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
                               shape: BoxShape.circle,
+                              border: BoxBorder.all(color: AppColors.white,width:0.5)
                             ),
                             child: const Icon(
                               Icons.arrow_back_ios_new,
                               color: Colors.white,
-                              size: 20,
+                              size: 16,
                             ),
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            color: Colors.black,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
                             shape: BoxShape.circle,
+                              border: BoxBorder.all(color: AppColors.white,width:0.5)
                           ),
                           child: Image.asset(
                             'assets/icons/postSaveIcon.png',
-                            width: 24,
-                            height: 24,
+                            width: 16,
+                            height: 16,
                             color: Colors.white,
                           ),
                         ),
@@ -90,20 +92,26 @@ class PostDetailsPage extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  bottom: 20,
-                  left: 20,
-                  right: 20,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSmallImage('assets/images/dish2.png'),
-                      const SizedBox(width: 10),
-                      _buildSmallImage('assets/images/dish3.png'),
-                      const SizedBox(width: 10),
-                      _buildSmallImage('assets/images/dish4.png'),
-                      const SizedBox(width: 10),
-                      _buildSmallImage('assets/images/dish5.png'),
-                    ],
+                  bottom: MediaQuery.of(context).size.height * 0.03,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const ClampingScrollPhysics(), // prevents overscroll glow on iOS
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildSmallImage('assets/images/dish2.png'),
+                          const SizedBox(width: 8),
+                          _buildSmallImage('assets/images/dish3.png'),
+                          const SizedBox(width: 8),
+                          _buildSmallImage('assets/images/dish4.png'),
+                          const SizedBox(width: 8),
+                          _buildSmallImage('assets/images/dish5.png'),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],

@@ -167,10 +167,14 @@ class FeedPage extends StatelessWidget {
                 Positioned(
                   bottom: 12,
                   right: 12,
-                  child: Image.asset(
-                    'assets/icons/postMessageIcon.png',
-                    width: 40,
-                    height: 40,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, AppRoutes.sendTo),
+                    child: Image.asset(
+                      'assets/icons/postMessageIcon.png',
+                      width: 40,
+                      height: 40,
+
+                    ),
                   ),
                 ),
               ],
@@ -194,10 +198,13 @@ class FeedPage extends StatelessWidget {
                       const SizedBox(width: 4),
                       const Text('85'),
                       const SizedBox(width: 16),
-                      Image.asset(
-                        'assets/icons/postShearIcon.png',
-                        width: 24,
-                        height: 24,
+                      GestureDetector(
+                        onTap: () => Navigator.pushNamed(context, AppRoutes.sendTo),
+                        child: Image.asset(
+                          'assets/icons/postShearIcon.png',
+                          width: 24,
+                          height: 24,
+                        ),
                       ),
                       const Spacer(),
                       Image.asset(

@@ -74,117 +74,131 @@ class _SignupPageState extends State<SignupPage> {
     final isSmallScreen = size.height < 700;
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            WavyHeader(
-              height: isSmallScreen ? 280 : 350,
-              child: SafeArea(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/icons/fullLogo.png',
-                      height: isSmallScreen ? 100 : 140,
-                    ),
-                    const SizedBox(height: 40),
-                  ],
+      body: SafeArea(
+        top:false,
+        left:false,
+        right:false,
+        bottom: true,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              WavyHeader(
+                height: isSmallScreen ? 280 : 350,
+                child: SafeArea(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/icons/fullLogo.png',
+                        height: isSmallScreen ? 100 : 140,
+                      ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Create Your Account',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Create Your Account',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Enter Your Details To Get Started.',
-                      style: TextStyle(fontSize: 14, color: AppColors.textGrey),
-                    ),
-                    const SizedBox(height: 24),
-                    _buildLabel('Full Name'),
-                    const SizedBox(height: 8),
-                    _buildTextField(
-                      controller: _nameController,
-                      hintText: 'Enter Your Name',
-                      iconPath: 'assets/icons/userIcon.png',
-                      validator: (value) =>
-                          value!.isEmpty ? 'Please enter your name' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildLabel('Email'),
-                    const SizedBox(height: 8),
-                    _buildTextField(
-                      controller: _emailController,
-                      hintText: 'Enter Your Email Address',
-                      iconPath: 'assets/icons/emailIcon.png',
-                      validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return 'Please enter your email';
-                        if (!value.contains('@'))
-                          return 'Please enter a valid email';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    _buildLabel('Phone Number'),
-                    const SizedBox(height: 8),
-                    _buildTextField(
-                      controller: _phoneController,
-                      hintText: 'Enter Your Phone Number',
-                      iconPath: 'assets/icons/mobileIcon.png',
-                      validator: (value) => value!.isEmpty
-                          ? 'Please enter your phone number'
-                          : null,
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildLabel('Password'),
-                    const SizedBox(height: 8),
-                    _buildPasswordField(),
-                    const SizedBox(height: 8),
-                    _buildStrengthIndicator(),
-                    const SizedBox(height: 32),
-                    _buildGradientButton(text: 'Continue', onPressed: _submit),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Already have an account? "),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacementNamed(
-                              context,
-                              AppRoutes.login,
-                            );
-                          },
-                          child: const Text(
-                            'Login',
-                            style: TextStyle(
-                              color: AppColors.primaryOrange,
-                              fontWeight: FontWeight.bold,
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Enter Your Details To Get Started.',
+                        style: TextStyle(fontSize: 14, color: AppColors.textGrey),
+                      ),
+                      const SizedBox(height: 24),
+                      _buildLabel('Full Name'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _nameController,
+                        hintText: 'Enter Your Name',
+                        iconPath: 'assets/icons/userIcon.png',
+                        validator: (value) =>
+                            value!.isEmpty ? 'Please enter your name' : null,
+                        onChanged: (value) => setState(() {}),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildLabel('Email'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _emailController,
+                        hintText: 'Enter Your Email Address',
+                        iconPath: 'assets/icons/emailIcon.png',
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            return 'Please enter your email';
+                          if (!value.contains('@'))
+                            return 'Please enter a valid email';
+                          return null;
+                        },
+                        onChanged: (value) => setState(() {}),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildLabel('Phone Number'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _phoneController,
+                        hintText: 'Enter Your Phone Number',
+                        iconPath: 'assets/icons/mobileIcon.png',
+                        validator: (value) => value!.isEmpty
+                            ? 'Please enter your phone number'
+                            : null,
+                        keyboardType: TextInputType.phone,
+                        onChanged: (value) => setState(() {}),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildLabel('Password'),
+                      const SizedBox(height: 8),
+                      _buildPasswordField(),
+                      const SizedBox(height: 8),
+                      _buildStrengthIndicator(),
+                      const SizedBox(height: 32),
+                      _buildGradientButton(text: 'Continue', onPressed: _submit),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Already have an account? "),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushReplacementNamed(
+                                context,
+                                AppRoutes.login,
+                              );
+                            },
+                            child: const Text(
+                              'Login',
+                              style: TextStyle(
+                                color: AppColors.primaryOrange,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                  ],
+                        ],
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).viewPadding.bottom > 0
+                            ? MediaQuery.of(context).viewPadding.bottom
+                            : 32,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -203,11 +217,13 @@ class _SignupPageState extends State<SignupPage> {
     required TextEditingController controller,
     String? Function(String?)? validator,
     TextInputType? keyboardType,
+    void Function(String)? onChanged,
   }) {
     return TextFormField(
       controller: controller,
       validator: validator,
       keyboardType: keyboardType,
+      onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hintText,
         prefixIcon: Padding(

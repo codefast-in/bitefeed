@@ -90,6 +90,9 @@ class _ChatPageState extends State<ChatPage> {
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
+        foregroundColor: Colors.white,
+        animateColor: false,
+        surfaceTintColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: Image.asset(
@@ -125,10 +128,10 @@ class _ChatPageState extends State<ChatPage> {
             ),
             if (isGroup)
               Image.asset(
-                'assets/icons/editProfileIcon.png',
+                'assets/icons/editPenIcon.png',
                 width: 18,
                 height: 18,
-                color: AppColors.primaryOrange,
+                // color: AppColors.primaryOrange,
               ),
           ],
         ),
@@ -138,9 +141,10 @@ class _ChatPageState extends State<ChatPage> {
               'assets/icons/otherUserDetailsOptionsIcon.png',
               width: 24,
               height: 24,
-              color: Colors.grey,
+              // color: Colors.grey,
             ),
             color: Colors.white, // Standardize white background
+            padding: EdgeInsets.zero,
             onSelected: (value) {
               if (value == 'Block') {
                 ScaffoldMessenger.of(
@@ -161,21 +165,47 @@ class _ChatPageState extends State<ChatPage> {
                 ? [
                     const PopupMenuItem(
                       value: 'Leave Group',
-                      child: Text('Leave Group'),
+                      height: 40,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text(
+                        'Leave Group',
+                        style: TextStyle(fontSize: 14),
+                      ),
                     ),
                     const PopupMenuItem(
                       value: 'Add Member',
-                      child: Text('Add Member'),
+                      height: 40,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text('Add Member', style: TextStyle(fontSize: 14)),
                     ),
                     const PopupMenuItem(
                       value: 'View Member',
-                      child: Text('View Member'),
+                      height: 40,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text(
+                        'View Member',
+                        style: TextStyle(fontSize: 14),
+                      ),
                     ),
                   ]
                 : [
                     const PopupMenuItem(
                       value: 'Block',
-                      child: Text('Block User'),
+                      height: 40,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text('Block User', style: TextStyle(fontSize: 14)),
                     ),
                   ],
           ),
@@ -211,52 +241,20 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildSmallGroupAvatar() {
-    return SizedBox(
+    return Container(
       width: 36,
       height: 36,
-      child: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            child: CircleAvatar(
-              radius: 9,
-              backgroundImage: const NetworkImage(
-                'https://i.pravatar.cc/150?u=1',
-              ),
-            ),
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: CircleAvatar(
-              radius: 9,
-              backgroundImage: const NetworkImage(
-                'https://i.pravatar.cc/150?u=2',
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            child: CircleAvatar(
-              radius: 9,
-              backgroundImage: const NetworkImage(
-                'https://i.pravatar.cc/150?u=3',
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: CircleAvatar(
-              radius: 9,
-              backgroundImage: const NetworkImage(
-                'https://i.pravatar.cc/150?u=4',
-              ),
-            ),
-          ),
-        ],
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.grey.shade200,
+      ),
+      child: ClipOval(
+        child: Image.asset(
+          "assets/icons/groupChatIcon.png",
+          width: 24,
+          height: 24,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }
@@ -291,6 +289,7 @@ class _ChatPageState extends State<ChatPage> {
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
               bottomRight: Radius.circular(20),
+              bottomLeft: Radius.circular(20),
             ),
             boxShadow: [
               BoxShadow(
@@ -329,6 +328,7 @@ class _ChatPageState extends State<ChatPage> {
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
                   bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
                 ),
               ),
               child: Text(

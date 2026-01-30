@@ -53,116 +53,119 @@ class _MessagesPageState extends State<MessagesPage> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    _buildChatItem(
-                      context,
-                      index: 0,
-                      name: 'Sarah Johnson',
-                      message: 'Let\'s Check Out That New Sushi Place!',
-                      time: '2 Min Ago',
-                      avatarUrl: 'https://i.pravatar.cc/150?u=sarah',
-                      isUnread: true,
-                    ),
-                    _buildChatItem(
-                      context,
-                      index: 1,
-                      name: 'Foody Group',
-                      message: 'Thanks For The Recommendation!',
-                      time: '2 Min Ago',
-                      isGroup: true,
-                    ),
-                    _buildChatItem(
-                      context,
-                      index: 2,
-                      name: 'Emma Davis',
-                      message: 'Have You Tried The Dessert Place?',
-                      time: '2 Min Ago',
-                      avatarUrl: 'https://i.pravatar.cc/150?u=emma',
-                    ),
-                    _buildChatItem(
-                      context,
-                      index: 3,
-                      name: 'Sarah Johnson',
-                      message: 'Let\'s Check Out That New Sushi Place!',
-                      time: '2 Min Ago',
-                      avatarUrl: 'https://i.pravatar.cc/150?u=sarah2',
-                      isUnread: true,
-                    ),
-                    _buildChatItem(
-                      context,
-                      index: 4,
-                      name: 'Mike Chen',
-                      message: 'Thanks For The Recommendation!',
-                      time: '2 Min Ago',
-                      avatarUrl: 'https://i.pravatar.cc/150?u=mike',
-                    ),
-                    _buildChatItem(
-                      context,
-                      index: 5,
-                      name: 'Emma Davis',
-                      message: 'Have You Tried The Dessert Place?',
-                      time: '2 Min Ago',
-                      avatarUrl: 'https://i.pravatar.cc/150?u=emma2',
-                    ),
-                    _buildChatItem(
-                      context,
-                      index: 6,
-                      name: 'Sarah Johnson',
-                      message: 'Let\'s Check Out That New Sushi Place!',
-                      time: '2 Min Ago',
-                      avatarUrl: 'https://i.pravatar.cc/150?u=sarah3',
-                      isUnread: true,
-                    ),
-                    _buildChatItem(
-                      context,
-                      index: 7,
-                      name: 'Mike Chen',
-                      message: 'Thanks For The Recommendation!',
-                      time: '2 Min Ago',
-                      avatarUrl: 'https://i.pravatar.cc/150?u=mike2',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 80), // Space for bottom bar
-            ],
-          ),
-          if (_selectedIndices.length > 1)
-            Positioned(
-              bottom: 100,
-              right: 24,
-              child: SizedBox(
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Action for sending message to multiple
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                  ),
-                  child: const Text(
-                    'Send Message',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+      body: SafeArea(
+        bottom: true,
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      _buildChatItem(
+                        context,
+                        index: 0,
+                        name: 'Sarah Johnson',
+                        message: 'Let\'s Check Out That New Sushi Place!',
+                        time: '2 Min Ago',
+                        avatarUrl: 'https://i.pravatar.cc/150?u=sarah',
+                        isUnread: true,
+                      ),
+                      _buildChatItem(
+                        context,
+                        index: 1,
+                        name: 'Foody Group',
+                        message: 'Thanks For The Recommendation!',
+                        time: '2 Min Ago',
+                        isGroup: true,
+                      ),
+                      _buildChatItem(
+                        context,
+                        index: 2,
+                        name: 'Emma Davis',
+                        message: 'Have You Tried The Dessert Place?',
+                        time: '2 Min Ago',
+                        avatarUrl: 'https://i.pravatar.cc/150?u=emma',
+                      ),
+                      _buildChatItem(
+                        context,
+                        index: 3,
+                        name: 'Sarah Johnson',
+                        message: 'Let\'s Check Out That New Sushi Place!',
+                        time: '2 Min Ago',
+                        avatarUrl: 'https://i.pravatar.cc/150?u=sarah2',
+                        isUnread: true,
+                      ),
+                      _buildChatItem(
+                        context,
+                        index: 4,
+                        name: 'Mike Chen',
+                        message: 'Thanks For The Recommendation!',
+                        time: '2 Min Ago',
+                        avatarUrl: 'https://i.pravatar.cc/150?u=mike',
+                      ),
+                      _buildChatItem(
+                        context,
+                        index: 5,
+                        name: 'Emma Davis',
+                        message: 'Have You Tried The Dessert Place?',
+                        time: '2 Min Ago',
+                        avatarUrl: 'https://i.pravatar.cc/150?u=emma2',
+                      ),
+                      _buildChatItem(
+                        context,
+                        index: 6,
+                        name: 'Sarah Johnson',
+                        message: 'Let\'s Check Out That New Sushi Place!',
+                        time: '2 Min Ago',
+                        avatarUrl: 'https://i.pravatar.cc/150?u=sarah3',
+                        isUnread: true,
+                      ),
+                      _buildChatItem(
+                        context,
+                        index: 7,
+                        name: 'Mike Chen',
+                        message: 'Thanks For The Recommendation!',
+                        time: '2 Min Ago',
+                        avatarUrl: 'https://i.pravatar.cc/150?u=mike2',
+                      ),
+                    ],
                   ),
                 ),
-              ),
+                const SizedBox(height: 80), // Space for bottom bar
+              ],
             ),
-        ],
+            if (_selectedIndices.length > 1)
+              Positioned(
+                bottom: 100,
+                right: 24,
+                child: SizedBox(
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Action for sending message to multiple
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                    ),
+                    child: const Text(
+                      'Send Message',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

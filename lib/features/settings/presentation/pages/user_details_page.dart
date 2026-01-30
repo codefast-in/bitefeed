@@ -28,6 +28,7 @@ class UserDetailsPage extends StatelessWidget {
               // color: Colors.white,
             ),
             color: Colors.white,
+            padding: EdgeInsets.zero,
             onSelected: (value) {
               if (value == 'Block') {
                 _showBlockDialog(context);
@@ -39,7 +40,12 @@ class UserDetailsPage extends StatelessWidget {
               return {'Block', 'Report'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
-                  child: Text(choice),
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Text(choice, style: const TextStyle(fontSize: 14)),
                 );
               }).toList();
             },
@@ -119,87 +125,95 @@ class UserDetailsPage extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
       padding: const EdgeInsets.only(bottom: 24),
-      child: Column(
+      child: Stack(
         children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 3),
-              image: const DecorationImage(
-                image: NetworkImage(
-                  'https://i.pravatar.cc/150?u=123',
-                ), // Placeholder
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Sarah Johnson',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          // Grid background pattern
+          Positioned.fill(child: CustomPaint(painter: _GridPainter())),
+          Column(
             children: [
-              _buildStatItem('85k', 'Followers'),
-              Container(height: 40, width: 1, color: Colors.white24),
-              _buildStatItem('150', 'Following'),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 140,
-                height: 45,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                  child: const Text(
-                    'Follow',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 3),
+                  image: const DecorationImage(
+                    image: NetworkImage(
+                      'https://i.pravatar.cc/150?u=123',
+                    ), // Placeholder
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
-              SizedBox(
-                width: 140,
-                height: 45,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Navigate to chat? or just visual for now
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Colors.white, // In design it looks white/transparent
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+              const SizedBox(height: 12),
+              const Text(
+                'Sarah Johnson',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildStatItem('85k', 'Followers'),
+                  Container(height: 40, width: 30, color: Colors.transparent),
+                  Container(height: 40, width: 1, color: Colors.white24),
+                  Container(height: 40, width: 30, color: Colors.transparent),
+                  _buildStatItem('150', 'Following'),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 140,
+                    height: 45,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child: const Text(
+                        'Follow',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Message',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ), // Checking design color.. usually secondary action
+                  const SizedBox(width: 16),
+                  SizedBox(
+                    width: 140,
+                    height: 45,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Navigate to chat? or just visual for now
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors
+                            .white, // In design it looks white/transparent
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child: const Text(
+                        'Message',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ), // Checking design color.. usually secondary action
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
@@ -298,6 +312,35 @@ class UserDetailsPage extends StatelessWidget {
                     ],
                   ),
                 ),
+                // Star rating indicator
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.orange, size: 14),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${4 + (index % 2)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 Positioned(
                   bottom: 12,
                   right: 12,
@@ -325,11 +368,11 @@ class UserDetailsPage extends StatelessWidget {
                     const SizedBox(width: 4),
                     const Text('85'),
                     const Spacer(),
-            Image.asset(
-              'assets/icons/postSaveIcon.png',
-              width: 20,
-              height: 20,
-            ),
+                    Image.asset(
+                      'assets/icons/postSaveIcon.png',
+                      width: 20,
+                      height: 20,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -359,4 +402,30 @@ class UserDetailsPage extends StatelessWidget {
       ),
     );
   }
+}
+
+// Grid painter for background pattern
+class _GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.1)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    const gridSize = 30.0;
+
+    // Draw vertical lines
+    for (double i = 0; i < size.width; i += gridSize) {
+      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
+    }
+
+    // Draw horizontal lines
+    for (double i = 0; i < size.height; i += gridSize) {
+      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

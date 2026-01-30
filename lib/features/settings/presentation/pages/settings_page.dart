@@ -25,97 +25,119 @@ class _SettingsPageState extends State<SettingsPage> {
               decoration: const BoxDecoration(
                 gradient: AppColors.primaryGradient,
               ),
-              child: Column(
+              child: Stack(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: Image.asset(
-                            'assets/icons/whiteBackIcon.png',
-                            width: 24,
-                            height: 24,
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        const Text(
-                          'SETTINGS',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        Builder(
-                          builder: (context) => IconButton(
-                            icon: Image.asset(
-                              'assets/icons/drawerMenuIcon.png',
-                              width: 24,
-                              height: 24,
-                            ),
-                            onPressed: () => Scaffold.of(context).openDrawer(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(50),
-                            child: Image.asset(
-                              'assets/images/userProfilePhoto.png',
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Jack Smiths',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  // Grid background pattern
+                  Positioned.fill(child: CustomPaint(painter: _GridPainter())),
+                  Column(
                     children: [
-                      _buildStatItem(
-                        '26',
-                        'My Bites',
-                        onTap: () =>
-                            Navigator.pushNamed(context, AppRoutes.myPosts),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              icon: Image.asset(
+                                'assets/icons/whiteBackIcon.png',
+                                width: 24,
+                                height: 24,
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            const Text(
+                              'SETTINGS',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            Builder(
+                              builder: (context) => IconButton(
+                                icon: Image.asset(
+                                  'assets/icons/drawerMenuIcon.png',
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                onPressed: () =>
+                                    Scaffold.of(context).openDrawer(),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      Container(height: 40, width: 1, color: Colors.white24),
-                      _buildStatItem(
-                        '85k',
-                        'Followers',
-                        onTap: () =>
-                            Navigator.pushNamed(context, AppRoutes.followers),
+                      const SizedBox(height: 20),
+                      Center(
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 3,
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Image.asset(
+                                  'assets/images/userProfilePhoto.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Jack Smiths',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      Container(height: 40, width: 1, color: Colors.white24),
-                      _buildStatItem(
-                        '150',
-                        'Following',
-                        onTap: () =>
-                            Navigator.pushNamed(context, AppRoutes.following),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildStatItem(
+                            '26',
+                            'My Bites',
+                            onTap: () =>
+                                Navigator.pushNamed(context, AppRoutes.myPosts),
+                          ),
+                          Container(
+                            height: 40,
+                            width: 1,
+                            color: Colors.white24,
+                          ),
+                          _buildStatItem(
+                            '85k',
+                            'Followers',
+                            onTap: () => Navigator.pushNamed(
+                              context,
+                              AppRoutes.followers,
+                            ),
+                          ),
+                          Container(
+                            height: 40,
+                            width: 1,
+                            color: Colors.white24,
+                          ),
+                          _buildStatItem(
+                            '150',
+                            'Following',
+                            onTap: () => Navigator.pushNamed(
+                              context,
+                              AppRoutes.following,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -163,7 +185,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Text(
             label,
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
         ],
       ),
@@ -320,13 +342,41 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             if (hasSwitch)
               Switch(
-                value: switchValue ?? false,
-                onChanged: onSwitchChanged,
-                activeColor: AppColors.primaryOrange,
-              ),
+                  value: switchValue ?? false,
+                  onChanged: onSwitchChanged,
+                  activeColor: AppColors.primaryRed,
+                ),
+
+
           ],
         ),
       ),
     );
   }
+}
+
+// Grid painter for background pattern
+class _GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.1)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    const gridSize = 60.0;
+
+    // Draw vertical lines
+    for (double i = 0; i < size.width; i += gridSize) {
+      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
+    }
+
+    // Draw horizontal lines
+    for (double i = 0; i < size.height; i += gridSize) {
+      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

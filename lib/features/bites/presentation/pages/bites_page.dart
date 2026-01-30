@@ -175,13 +175,13 @@ class _BitesPageState extends State<BitesPage>
             },
             itemBuilder: (BuildContext context) {
               return [
-                const PopupMenuItem(
-                  enabled: false,
-                  child: Text(
-                    'SORT BY',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ),
+                // const PopupMenuItem(
+                //   enabled: false,
+                //   child: Text(
+                //     'SORT BY',
+                //     style: TextStyle(fontSize: 12, color: Colors.grey),
+                //   ),
+                // ),
                 CheckedPopupMenuItem(
                   value: 'Recent',
                   checked: _selectedSort == SortOption.recent,
@@ -198,13 +198,13 @@ class _BitesPageState extends State<BitesPage>
                   child: const Text('A-Z'),
                 ),
                 const PopupMenuDivider(),
-                const PopupMenuItem(
-                  enabled: false,
-                  child: Text(
-                    'VIEW',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ),
+                // const PopupMenuItem(
+                //   enabled: false,
+                //   child: Text(
+                //     'VIEW',
+                //     style: TextStyle(fontSize: 12, color: Colors.grey),
+                //   ),
+                // ),
                 CheckedPopupMenuItem(
                   value: 'List View',
                   checked: _selectedView == ViewMode.list,
