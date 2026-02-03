@@ -63,154 +63,160 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              Center(
-                child: Container(
-                  width: 100,
-                  height: 100,
+      body: SafeArea(
+        top: false,
+        left: false,
+        right: false,
+        bottom: true,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                Center(
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: AppColors.primaryGradient,
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 2,
+                      ), // Added black border as per design
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.lock_outline,
+                        size: 50,
+                        color: Colors.white,
+                      ), // Using standard icon
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+
+                _buildLabel('Old Password'),
+                const SizedBox(height: 8),
+                _buildPasswordField(
+                  controller: _oldPasswordController,
+                  isVisible: _oldPasswordVisible,
+                  onVisibilityToggle: () {
+                    setState(() {
+                      _oldPasswordVisible = !_oldPasswordVisible;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your old password';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                _buildLabel('New Password'),
+                const SizedBox(height: 8),
+                _buildPasswordField(
+                  controller: _newPasswordController,
+                  isVisible: _newPasswordVisible,
+                  onVisibilityToggle: () {
+                    setState(() {
+                      _newPasswordVisible = !_newPasswordVisible;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a new password';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                _buildLabel('New Confirm Password'),
+                const SizedBox(height: 8),
+                _buildPasswordField(
+                  controller: _confirmPasswordController,
+                  isVisible: _confirmPasswordVisible,
+                  onVisibilityToggle: () {
+                    setState(() {
+                      _confirmPasswordVisible = !_confirmPasswordVisible;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm your new password';
+                    }
+                    if (value != _newPasswordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 60),
+
+                // Save Button
+                Container(
+                  width: double.infinity,
+                  height: 50,
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
                     gradient: AppColors.primaryGradient,
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 2,
-                    ), // Added black border as per design
+                    borderRadius: BorderRadius.circular(25),
                   ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.lock_outline,
-                      size: 50,
-                      color: Colors.white,
-                    ), // Using standard icon
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              _buildLabel('Old Password'),
-              const SizedBox(height: 8),
-              _buildPasswordField(
-                controller: _oldPasswordController,
-                isVisible: _oldPasswordVisible,
-                onVisibilityToggle: () {
-                  setState(() {
-                    _oldPasswordVisible = !_oldPasswordVisible;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your old password';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-
-              _buildLabel('New Password'),
-              const SizedBox(height: 8),
-              _buildPasswordField(
-                controller: _newPasswordController,
-                isVisible: _newPasswordVisible,
-                onVisibilityToggle: () {
-                  setState(() {
-                    _newPasswordVisible = !_newPasswordVisible;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a new password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 20),
-
-              _buildLabel('New Confirm Password'),
-              const SizedBox(height: 8),
-              _buildPasswordField(
-                controller: _confirmPasswordController,
-                isVisible: _confirmPasswordVisible,
-                onVisibilityToggle: () {
-                  setState(() {
-                    _confirmPasswordVisible = !_confirmPasswordVisible;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please confirm your new password';
-                  }
-                  if (value != _newPasswordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 60),
-
-              // Save Button
-              Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                  child: ElevatedButton(
+                    onPressed: _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                    child: const Text(
+                      'Save',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              // Cancel Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                const SizedBox(height: 16),
+                // Cancel Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

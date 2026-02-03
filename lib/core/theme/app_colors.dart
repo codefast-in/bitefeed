@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 class AppColors {
   static const Color primaryOrange = Color(0xFFFFA10A);
   static const Color primaryRed = Color(0xFFDA2744);
-  
+
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
     // colors: [primaryOrange, primaryRed],
     colors: [
+      Color(0xFFFFA10A),
       Color(0xFFEF6727),
       Color(0xFFEC5F29),
       Color(0xFFE9562E),
@@ -22,6 +23,17 @@ class AppColors {
     colors: [
       Color(0x33FFA10A), // primaryOrange with 60% opacity
       Color(0x33DA2744), // primaryRed with 60% opacity
+    ],
+  );
+
+  static const LinearGradient headerGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0x44FFA10A), // primaryOrange with 60% opacity
+      Color(0x33DA2744), // primaryRed with 60% opacity
+      Color(0xFFFFFFFF),
+      // Color(0xFFFFFFFF),
     ],
   );
   static const LinearGradient verticalGradient = LinearGradient(

@@ -144,7 +144,8 @@ class _BitesPageState extends State<BitesPage>
               height: 24,
               color: Colors.white,
             ),
-            color: Colors.white,
+            offset: const Offset(0, 45),
+            constraints: const BoxConstraints(minWidth: 150, maxWidth: 180),
             onSelected: (value) {
               // Handle selection
               if (value == 'Recent' ||
@@ -174,46 +175,71 @@ class _BitesPageState extends State<BitesPage>
               }
             },
             itemBuilder: (BuildContext context) {
+              final textStyle = const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+                color: Colors.black,
+              );
+              final activeTextStyle = textStyle.copyWith(
+                fontWeight: FontWeight.w600,
+              );
+
               return [
-                // const PopupMenuItem(
-                //   enabled: false,
-                //   child: Text(
-                //     'SORT BY',
-                //     style: TextStyle(fontSize: 12, color: Colors.grey),
-                //   ),
-                // ),
-                CheckedPopupMenuItem(
+                PopupMenuItem(
                   value: 'Recent',
-                  checked: _selectedSort == SortOption.recent,
-                  child: const Text('Recent'),
+                  height: 35,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Recent',
+                    style: _selectedSort == SortOption.recent
+                        ? activeTextStyle
+                        : textStyle,
+                  ),
                 ),
-                CheckedPopupMenuItem(
+                PopupMenuItem(
                   value: 'Highest Rated',
-                  checked: _selectedSort == SortOption.highestRated,
-                  child: const Text('Highest Rated'),
+                  height: 35,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Highest Rated',
+                    style: _selectedSort == SortOption.highestRated
+                        ? activeTextStyle
+                        : textStyle,
+                  ),
                 ),
-                CheckedPopupMenuItem(
+                PopupMenuItem(
                   value: 'A-Z',
-                  checked: _selectedSort == SortOption.aToZ,
-                  child: const Text('A-Z'),
+                  height: 35,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'A-Z',
+                    style: _selectedSort == SortOption.aToZ
+                        ? activeTextStyle
+                        : textStyle,
+                  ),
                 ),
-                const PopupMenuDivider(),
-                // const PopupMenuItem(
-                //   enabled: false,
-                //   child: Text(
-                //     'VIEW',
-                //     style: TextStyle(fontSize: 12, color: Colors.grey),
-                //   ),
-                // ),
-                CheckedPopupMenuItem(
+                const PopupMenuDivider(height: 1),
+                PopupMenuItem(
                   value: 'List View',
-                  checked: _selectedView == ViewMode.list,
-                  child: const Text('List View'),
+                  height: 35,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'List View',
+                    style: _selectedView == ViewMode.list
+                        ? activeTextStyle
+                        : textStyle,
+                  ),
                 ),
-                CheckedPopupMenuItem(
+                PopupMenuItem(
                   value: 'Card View',
-                  checked: _selectedView == ViewMode.card,
-                  child: const Text('Card View'),
+                  height: 35,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Card View',
+                    style: _selectedView == ViewMode.card
+                        ? activeTextStyle
+                        : textStyle,
+                  ),
                 ),
               ];
             },

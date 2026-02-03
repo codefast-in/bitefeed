@@ -53,21 +53,20 @@ class _CustomRestaurantStepState extends State<CustomRestaurantStep> {
           ),
           const SizedBox(height: 24),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(
                     Icons.arrow_back_ios_new,
-                    size: 16,
-                    color: Colors.white,
+                    size: 20,
+                    color: Colors.black,
                   ),
+                  onPressed: widget.onBack,
                 ),
-                onPressed: widget.onBack,
               ),
               const Expanded(
                 child: Column(
@@ -89,7 +88,7 @@ class _CustomRestaurantStepState extends State<CustomRestaurantStep> {
                   ],
                 ),
               ),
-              const SizedBox(width: 48),
+              const SizedBox(width: 24),
             ],
           ),
           const SizedBox(height: 32),

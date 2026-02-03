@@ -7,15 +7,22 @@ class UserDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0, // 👈 Prevents color change on scroll
+        surfaceTintColor: Colors.transparent,
         flexibleSpace: Container(
           decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
+          child: CustomPaint(painter: _GridPainter()),
         ),
         leading: IconButton(
           icon: Image.asset(
             'assets/icons/whiteBackIcon.png',
-            width: 24,
-            height: 24,
+            width: 20,
+            height: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -25,10 +32,11 @@ class UserDetailsPage extends StatelessWidget {
               'assets/icons/otherUserDetailsOptionsIcon.png',
               width: 24,
               height: 24,
+
               // color: Colors.white,
             ),
             color: Colors.white,
-            padding: EdgeInsets.zero,
+            padding: EdgeInsets.fromLTRB(0, 0, 28, 0),
             onSelected: (value) {
               if (value == 'Block') {
                 _showBlockDialog(context);
@@ -51,22 +59,26 @@ class UserDetailsPage extends StatelessWidget {
             },
           ),
         ],
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(child: _buildProfileHeader(context)),
-          SliverPadding(
-            padding: const EdgeInsets.all(16.0),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildPostItem(context, index),
-                childCount: 3,
+      body: SafeArea(
+        top: false,
+        left: false,
+        right: false,
+        bottom: true,
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: _buildProfileHeader(context)),
+            SliverPadding(
+              padding: const EdgeInsets.all(16.0),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => _buildPostItem(context, index),
+                  childCount: 3,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -122,6 +134,7 @@ class UserDetailsPage extends StatelessWidget {
   }
 
   Widget _buildProfileHeader(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Container(
       decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
       padding: const EdgeInsets.only(bottom: 24),
@@ -134,6 +147,7 @@ class UserDetailsPage extends StatelessWidget {
               Container(
                 width: 100,
                 height: 100,
+                margin: EdgeInsets.only(top: size.height * 0.1),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 3),
@@ -413,7 +427,7 @@ class _GridPainter extends CustomPainter {
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
 
-    const gridSize = 30.0;
+    const gridSize = 60.0;
 
     // Draw vertical lines
     for (double i = 0; i < size.width; i += gridSize) {

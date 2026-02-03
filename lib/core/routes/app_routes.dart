@@ -30,6 +30,8 @@ import '../../features/settings/presentation/pages/user_details_page.dart';
 import '../../features/settings/presentation/pages/my_posts_page.dart';
 import '../../features/messages/presentation/pages/chat_page.dart';
 import '../../features/messages/presentation/pages/group_members_page.dart';
+import '../../features/messages/presentation/pages/leave_group_page.dart';
+import '../../features/messages/presentation/pages/add_members_page.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
@@ -63,6 +65,8 @@ class AppRoutes {
   static const String myPosts = '/my-posts';
   static const String chat = '/chat';
   static const String groupMembers = '/group-members';
+  static const String leaveGroup = '/leave-group';
+  static const String addMembers = '/add-members';
 
   static Map<String, WidgetBuilder> get routes => {
     splash: (context) => const SplashScreen(),
@@ -96,5 +100,7 @@ class AppRoutes {
     myPosts: (context) => const MyPostsPage(),
     chat: (context) => const ChatPage(),
     groupMembers: (context) => const GroupMembersPage(),
+    leaveGroup: (context) => const LeaveGroupPage(),
+    addMembers: (context) => const AddMembersPage(),
   };
 }

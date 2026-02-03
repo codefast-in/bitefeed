@@ -15,8 +15,8 @@ class GroupMembersPage extends StatelessWidget {
         leading: IconButton(
           icon: Image.asset(
             'assets/icons/whiteBackIcon.png',
-            width: 24,
-            height: 24,
+            width: 20,
+            height: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),

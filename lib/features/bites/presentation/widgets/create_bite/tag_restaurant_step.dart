@@ -49,6 +49,8 @@ class TagRestaurantStep extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               IconButton(
                 icon: Container(
@@ -65,6 +67,21 @@ class TagRestaurantStep extends StatelessWidget {
                 ),
                 onPressed: onBack,
               ),
+              // Padding(
+              //   padding: const EdgeInsets.only(top: 4),
+              //   child: IconButton(
+              //     padding: EdgeInsets.zero,
+
+              //     constraints: const BoxConstraints(),
+              //     icon: const Icon(
+              //       Icons.arrow_back_ios_new,
+              //       size: 20,
+              //       color: Colors.black,
+
+              //     ),
+              //     onPressed: onBack,
+              //   ),
+              // ),
               const Expanded(
                 child: Column(
                   children: [
@@ -85,7 +102,7 @@ class TagRestaurantStep extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 48), // Balance for back button
+              const SizedBox(width: 24), // Balance for back button
             ],
           ),
           const SizedBox(height: 24),

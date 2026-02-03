@@ -33,13 +33,19 @@ class BlockListPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(20),
-        itemCount: 8,
-        separatorBuilder: (context, index) => const SizedBox(height: 16),
-        itemBuilder: (context, index) {
-          return _buildBlockItem(index);
-        },
+      body: SafeArea(
+        top: false,
+        left: false,
+        right: false,
+        bottom: true,
+        child: ListView.separated(
+          padding: const EdgeInsets.all(20),
+          itemCount: 8,
+          separatorBuilder: (context, index) => const SizedBox(height: 16),
+          itemBuilder: (context, index) {
+            return _buildBlockItem(index);
+          },
+        ),
       ),
     );
   }

@@ -57,6 +57,87 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  void _showMediaSelectionSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+      ),
+      builder: (context) => _buildMediaSelectionSheet(),
+    );
+  }
+
+  Widget _buildMediaSelectionSheet() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+      child: SafeArea(
+        bottom: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Select File',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 32),
+            _buildMediaOption(
+              'assets/icons/galleryIcon.png', // Assuming name from design
+              'Gallery',
+              Colors.lightBlue.shade100,
+              () => Navigator.pop(context),
+            ),
+            const SizedBox(height: 24),
+            _buildMediaOption(
+              'assets/icons/cameraIcon.png', // Assuming name from design
+              'Camera',
+              Colors.red.shade100,
+              () => Navigator.pop(context),
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMediaOption(
+    String iconPath,
+    String title,
+    Color bgColor,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              // color: bgColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Image.asset(iconPath, width: 24, height: 24),
+          ),
+          const SizedBox(width: 20),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showPlanVisitSheet(String restaurantName) {
     showModalBottomSheet(
       context: context,
@@ -97,8 +178,8 @@ class _ChatPageState extends State<ChatPage> {
         leading: IconButton(
           icon: Image.asset(
             'assets/icons/whiteBackIcon.png',
-            width: 24,
-            height: 24,
+            width: 20,
+            height: 20,
             color: AppColors.primaryOrange,
           ),
           onPressed: () => Navigator.pop(context),
@@ -143,7 +224,8 @@ class _ChatPageState extends State<ChatPage> {
               height: 24,
               // color: Colors.grey,
             ),
-            color: Colors.white, // Standardize white background
+            offset: const Offset(0, 45),
+            constraints: const BoxConstraints(minWidth: 150, maxWidth: 180),
             padding: EdgeInsets.zero,
             onSelected: (value) {
               if (value == 'Block') {
@@ -153,12 +235,9 @@ class _ChatPageState extends State<ChatPage> {
               } else if (value == 'View Member') {
                 Navigator.pushNamed(context, AppRoutes.groupMembers);
               } else if (value == 'Add Member') {
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.sendTo,
-                ); // Re-use for now or specific selection logic
+                Navigator.pushNamed(context, AppRoutes.addMembers);
               } else if (value == 'Leave Group') {
-                Navigator.pop(context);
+                Navigator.pushNamed(context, AppRoutes.leaveGroup);
               }
             },
             itemBuilder: (context) => isGroup
@@ -539,10 +618,13 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 child: Row(
                   children: [
-                    Image.asset(
-                      'assets/icons/messageInputLinkIcon.png',
-                      width: 20,
-                      height: 20,
+                    GestureDetector(
+                      onTap: _showMediaSelectionSheet,
+                      child: Image.asset(
+                        'assets/icons/messageInputLinkIcon.png',
+                        width: 20,
+                        height: 20,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(

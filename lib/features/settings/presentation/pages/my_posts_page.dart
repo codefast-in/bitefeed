@@ -105,14 +105,22 @@ class MyPostsPage extends StatelessWidget {
                   ],
                 ),
               ),
-              // Star rating indicator
 
+              // Star rating indicator
               Positioned(
                 top: 12,
                 right: 12,
                 child: PopupMenuButton<String>(
-                  icon: Image.asset("assets/icons/otherUserDetailsOptionsIcon.png",height: 20,width: 20,),
-                  color: Colors.white,
+                  icon: Image.asset(
+                    "assets/icons/otherUserDetailsOptionsIcon.png",
+                    height: 20,
+                    width: 20,
+                  ),
+                  offset: const Offset(0, 45),
+                  constraints: const BoxConstraints(
+                    minWidth: 120,
+                    maxWidth: 150,
+                  ),
                   padding: EdgeInsets.zero,
                   onSelected: (value) {
                     if (value == 'Delete') {
@@ -205,7 +213,7 @@ class MyPostsPage extends StatelessWidget {
                     Row(
                       children: List.generate(
                         5,
-                            (index) => const Icon(
+                        (index) => const Icon(
                           Icons.star,
                           color: Colors.orange,
                           size: 16,

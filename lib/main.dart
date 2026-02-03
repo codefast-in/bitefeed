@@ -28,6 +28,14 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
         scaffoldBackgroundColor: AppColors.white,
+        popupMenuTheme: PopupMenuThemeData(
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 4,
+          textStyle: const TextStyle(color: Colors.black, fontSize: 14),
+        ),
       ),
       initialRoute: AppRoutes.splash,
       routes: AppRoutes.routes,

@@ -73,7 +73,10 @@ class _CreateBiteSheetState extends State<CreateBiteSheet> {
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      child: SingleChildScrollView(child: _buildCurrentStep()),
+      child: SafeArea(
+        bottom: true,
+        child: SingleChildScrollView(child: _buildCurrentStep()),
+      ),
     );
   }
 

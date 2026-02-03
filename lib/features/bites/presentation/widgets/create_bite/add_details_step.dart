@@ -60,6 +60,7 @@ class _AddDetailsStepState extends State<AddDetailsStep> {
           ),
           const SizedBox(height: 24),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IconButton(
                 icon: Container(
@@ -76,6 +77,19 @@ class _AddDetailsStepState extends State<AddDetailsStep> {
                 ),
                 onPressed: widget.onBack,
               ),
+              // Padding(
+              //   padding: const EdgeInsets.only(top: 4),
+              //   child: IconButton(
+              //     padding: EdgeInsets.zero,
+              //     constraints: const BoxConstraints(),
+              //     icon: const Icon(
+              //       Icons.arrow_back_ios_new,
+              //       size: 20,
+              //       color: Colors.black,
+              //     ),
+              //     onPressed: widget.onBack,
+              //   ),
+              // ),
               Expanded(
                 child: Column(
                   children: [
@@ -99,7 +113,7 @@ class _AddDetailsStepState extends State<AddDetailsStep> {
                   ],
                 ),
               ),
-              const SizedBox(width: 48),
+              const SizedBox(width: 20), // Balance for the smaller back button
             ],
           ),
           const SizedBox(height: 24),

@@ -21,6 +21,7 @@ class BiteListItem extends StatelessWidget {
       key: Key(bite.id),
       direction: DismissDirection.endToStart,
       background: Container(
+        margin: const EdgeInsets.only(bottom: 12),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         decoration: BoxDecoration(

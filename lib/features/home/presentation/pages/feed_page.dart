@@ -8,74 +8,91 @@ class FeedPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFDF5ED),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 10,
-              ),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.settings);
-                    },
-                    child: Container(
-                      width: 45,
-                      height: 45,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.primaryOrange,
-                          width: 2,
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Top section gradient background
+          Container(
+            height: 280,
+            decoration: const BoxDecoration(gradient: AppColors.headerGradient),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, AppRoutes.settings);
+                        },
+                        child: Container(
+                          width: 45,
+                          height: 45,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(22),
+                            child: Image.asset(
+                              'assets/images/userProfilePhoto.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(22),
-                        child: Image.asset(
-                          'assets/images/userProfilePhoto.png',
-                          fit: BoxFit.cover,
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Jack Smiths',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
-                    ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, AppRoutes.notifications);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Image.asset(
+                            'assets/icons/blackFillNotificationIcon.png',
+                            width: 24,
+                            height: 24,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Jack Smiths',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.notifications);
-                    },
-                    child: Image.asset(
-                      'assets/icons/blackFillNotificationIcon.png',
-                      width: 40,
-                      height: 40,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  bottom: 100,
                 ),
-                itemCount: 2,
-                itemBuilder: (context, index) {
-                  return _buildFeedItem(context, index);
-                },
-              ),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 100,
+                    ),
+                    itemCount: 2,
+                    itemBuilder: (context, index) {
+                      return _buildFeedItem(context, index);
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -173,7 +190,6 @@ class FeedPage extends StatelessWidget {
                       'assets/icons/postMessageIcon.png',
                       width: 40,
                       height: 40,
-
                     ),
                   ),
                 ),
@@ -192,25 +208,26 @@ class FeedPage extends StatelessWidget {
                       const SizedBox(width: 16),
                       Image.asset(
                         'assets/icons/postCommentIcon.png',
-                        width: 24,
-                        height: 24,
+                        width: 20,
+                        height: 20,
                       ),
                       const SizedBox(width: 4),
                       const Text('85'),
                       const SizedBox(width: 16),
                       GestureDetector(
-                        onTap: () => Navigator.pushNamed(context, AppRoutes.sendTo),
+                        onTap: () =>
+                            Navigator.pushNamed(context, AppRoutes.sendTo),
                         child: Image.asset(
                           'assets/icons/postShearIcon.png',
-                          width: 24,
-                          height: 24,
+                          width: 20,
+                          height: 20,
                         ),
                       ),
                       const Spacer(),
                       Image.asset(
                         'assets/icons/postSaveIcon.png',
-                        width: 24,
-                        height: 24,
+                        width: 20,
+                        height: 20,
                       ),
                     ],
                   ),

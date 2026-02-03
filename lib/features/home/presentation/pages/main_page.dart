@@ -26,11 +26,15 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+    bool shouldHideBottomBar = _currentIndex == 4 && isKeyboardOpen;
+
     return Scaffold(
       body: Stack(
         children: [
           _pages[_currentIndex],
-          Positioned(left: 0, right: 0, bottom: 0, child: _buildBottomBar()),
+          if (!shouldHideBottomBar)
+            Positioned(left: 0, right: 0, bottom: 0, child: _buildBottomBar()),
         ],
       ),
     );

@@ -13,6 +13,7 @@ class SuccessStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
@@ -35,14 +36,10 @@ class SuccessStep extends StatelessWidget {
           ),
           const SizedBox(height: 48),
           Center(
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: AppColors.primaryGradient,
-              ),
-              child: const Icon(Icons.check, color: Colors.white, size: 60),
+            child: Image.asset(
+              'assets/icons/passwordChnagedIcon.png',
+              height: size.height * 0.25,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(height: 24),
