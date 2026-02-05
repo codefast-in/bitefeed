@@ -4,7 +4,7 @@ import '../../models/bite_model.dart';
 import 'package:intl/intl.dart';
 
 class BiteCardItem extends StatelessWidget {
-  final Bite bite;
+  final BiteModel bite;
   final VoidCallback onShare;
 
   const BiteCardItem({super.key, required this.bite, required this.onShare});
@@ -33,11 +33,21 @@ class BiteCardItem extends StatelessWidget {
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
                 ),
-                child: Image.asset(
-                  bite.imageUrl,
+                child: Image.network(
+                  bite.photos.isNotEmpty ? bite.photos.first : '',
                   width: double.infinity,
                   height: 140,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: double.infinity,
+                    height: 140,
+                    color: Colors.grey[300],
+                    child: const Icon(
+                      Icons.restaurant,
+                      size: 50,
+                      color: Colors.grey,
+                    ),
+                  ),
                 ),
               ),
               Positioned(
@@ -45,21 +55,21 @@ class BiteCardItem extends StatelessWidget {
                 right: 8,
                 child: GestureDetector(
                   onTap: onShare,
-                   child: Container(
-    padding: const EdgeInsets.all(8),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
 
-    decoration: BoxDecoration(
-    border: Border.all(color: AppColors.black),
-    borderRadius: BorderRadius.circular(8),
-      color: AppColors.white
-    ),
-    child: Image.asset(
-    'assets/icons/shearColorIcon.png',
-    fit: BoxFit.cover,
-    height: 16,
-    width: 16,
-    ),
-    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.black),
+                      borderRadius: BorderRadius.circular(8),
+                      color: AppColors.white,
+                    ),
+                    child: Image.asset(
+                      'assets/icons/shearColorIcon.png',
+                      fit: BoxFit.cover,
+                      height: 16,
+                      width: 16,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -74,7 +84,7 @@ class BiteCardItem extends StatelessWidget {
                     5,
                     (index) => Icon(
                       Icons.star,
-                      color: index < bite.rating
+                      color: index < bite.rating.toInt()
                           ? AppColors.primaryOrange
                           : Colors.grey[300],
                       size: 14,
@@ -93,7 +103,7 @@ class BiteCardItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  DateFormat('dd MMMM yyyy').format(bite.date),
+                  DateFormat('dd MMMM yyyy').format(bite.createdAt),
                   style: TextStyle(fontSize: 11, color: AppColors.textGrey),
                 ),
               ],

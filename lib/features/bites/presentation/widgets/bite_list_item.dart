@@ -4,7 +4,7 @@ import '../../models/bite_model.dart';
 import 'package:intl/intl.dart';
 
 class BiteListItem extends StatelessWidget {
-  final Bite bite;
+  final BiteModel bite;
   final VoidCallback onShare;
   final VoidCallback onDelete;
 
@@ -50,11 +50,21 @@ class BiteListItem extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  bite.imageUrl,
+                child: Image.network(
+                  bite.photos.isNotEmpty ? bite.photos.first : '',
                   width: 80,
                   height: 80,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 80,
+                    height: 80,
+                    color: Colors.grey[300],
+                    child: const Icon(
+                      Icons.restaurant,
+                      size: 30,
+                      color: Colors.grey,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -67,7 +77,7 @@ class BiteListItem extends StatelessWidget {
                         5,
                         (index) => Icon(
                           Icons.star,
-                          color: index < bite.rating
+                          color: index < bite.rating.toInt()
                               ? AppColors.primaryOrange
                               : Colors.grey[300],
                           size: 16,
@@ -84,7 +94,7 @@ class BiteListItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      DateFormat('dd MMMM yyyy').format(bite.date),
+                      DateFormat('dd MMMM yyyy').format(bite.createdAt),
                       style: TextStyle(fontSize: 12, color: AppColors.textGrey),
                     ),
                   ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../models/bite_model.dart';
+import '../../../auth/data/models/user_model.dart';
 import '../widgets/bite_list_item.dart';
 import '../widgets/bite_card_item.dart';
 
@@ -24,8 +25,8 @@ class _BitesPageState extends State<BitesPage>
   ViewMode _selectedView = ViewMode.list;
 
   // Sample data
-  List<Bite> _myBites = [];
-  List<Bite> _savedBites = [];
+  List<BiteModel> _myBites = [];
+  List<BiteModel> _savedBites = [];
 
   @override
   void initState() {
@@ -35,48 +36,26 @@ class _BitesPageState extends State<BitesPage>
   }
 
   void _initializeSampleData() {
+    // Sample data - replace with actual data from API/state management
     _myBites = [
-      Bite(
+      BiteModel(
         id: '1',
         restaurantName: 'The Golden Fork',
-        imageUrl: 'assets/images/dish1.png',
-        rating: 5,
-        date: DateTime(2025, 11, 28),
-      ),
-      Bite(
-        id: '2',
-        restaurantName: 'Morning Brew Café',
-        imageUrl: 'assets/images/dish2.png',
-        rating: 5,
-        date: DateTime(2025, 11, 28),
-      ),
-      Bite(
-        id: '3',
-        restaurantName: 'Sweet Dreams Bakery',
-        imageUrl: 'assets/images/dish1.png',
-        rating: 5,
-        date: DateTime(2025, 11, 28),
-      ),
-      Bite(
-        id: '4',
-        restaurantName: 'Sakura Sushi Bar',
-        imageUrl: 'assets/images/dish2.png',
-        rating: 5,
-        date: DateTime(2025, 11, 28),
-      ),
-      Bite(
-        id: '5',
-        restaurantName: 'Green Bowl Kitchen',
-        imageUrl: 'assets/images/dish1.png',
-        rating: 5,
-        date: DateTime(2025, 11, 28),
-      ),
-      Bite(
-        id: '6',
-        restaurantName: 'Bella\'s Pizzeria',
-        imageUrl: 'assets/images/dish2.png',
-        rating: 5,
-        date: DateTime(2025, 11, 28),
+        photos: ['https://via.placeholder.com/300'],
+        rating: 5.0,
+        caption: 'Amazing food!',
+        tags: ['italian', 'pasta'],
+        user: UserModel(
+          id: 'user1',
+          username: 'foodlover',
+          email: 'user@example.com',
+          fullName: 'Food Lover',
+          profileImage: '',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+        createdAt: DateTime(2025, 11, 28),
+        updatedAt: DateTime(2025, 11, 28),
       ),
     ];
 
@@ -89,12 +68,12 @@ class _BitesPageState extends State<BitesPage>
     super.dispose();
   }
 
-  List<Bite> _getSortedBites(List<Bite> bites) {
-    List<Bite> sorted = List.from(bites);
+  List<BiteModel> _getSortedBites(List<BiteModel> bites) {
+    List<BiteModel> sorted = List.from(bites);
 
     switch (_selectedSort) {
       case SortOption.recent:
-        sorted.sort((a, b) => b.date.compareTo(a.date));
+        sorted.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         break;
       case SortOption.highestRated:
         sorted.sort((a, b) => b.rating.compareTo(a.rating));
@@ -285,7 +264,7 @@ class _BitesPageState extends State<BitesPage>
     );
   }
 
-  Widget _buildBitesList(List<Bite> bites) {
+  Widget _buildBitesList(List<BiteModel> bites) {
     if (_selectedView == ViewMode.list) {
       return ListView.builder(
         padding: const EdgeInsets.only(

@@ -91,14 +91,14 @@ class _ChatPageState extends State<ChatPage> {
             ),
             const SizedBox(height: 32),
             _buildMediaOption(
-              'assets/icons/galleryIcon.png', // Assuming name from design
+              'assets/icons/galleryIcon.png',
               'Gallery',
               Colors.lightBlue.shade100,
               () => Navigator.pop(context),
             ),
             const SizedBox(height: 24),
             _buildMediaOption(
-              'assets/icons/cameraIcon.png', // Assuming name from design
+              'assets/icons/cameraIcon.png',
               'Camera',
               Colors.red.shade100,
               () => Navigator.pop(context),
