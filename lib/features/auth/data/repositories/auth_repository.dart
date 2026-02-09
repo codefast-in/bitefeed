@@ -1,14 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/storage/storage_keys.dart';
 import '../../../../core/storage/storage_service.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/network/api_endpoints.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../core/storage/storage_service.dart';
-import '../../../core/storage/storage_keys.dart';
+import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 import '../models/auth_response_model.dart';
 
@@ -28,6 +25,7 @@ class AuthRepository {
     required String confirmPassword,
   }) async {
     try {
+      debugPrint('🔐 AuthRepository: Calling signup API for $email');
       final response = await _apiClient.post(
         ApiEndpoints.register,
         data: {
@@ -38,9 +36,11 @@ class AuthRepository {
         },
       );
 
+      debugPrint('✅ AuthRepository: Signup API successful');
       final authResponse = AuthResponseModel.fromJson(response.data);
 
       // Save tokens
+      debugPrint('💾 AuthRepository: Saving tokens after signup...');
       await _storage.saveSecure(
         StorageKeys.accessToken,
         authResponse.accessToken,
@@ -53,37 +53,52 @@ class AuthRepository {
 
       return authResponse;
     } on DioException catch (e) {
+      debugPrint('❌ AuthRepository: Signup failed - ${e.message}');
       throw e.error as AppException;
     }
   }
 
+  // Login
   // Login
   Future<AuthResponseModel> login({
     required String email,
     required String password,
   }) async {
     try {
+      debugPrint('🔐 AuthRepository: Calling login API for $email');
+      // FIXED: Call _apiClient.post instead of _authRepository.login
       final response = await _apiClient.post(
-        ApiEndpoints.login,
+        ApiEndpoints.login, // Make sure this endpoint exists in ApiEndpoints
         data: {'email': email, 'password': password},
       );
 
-      final authResponse = AuthResponseModel.fromJson(response.data);
+      debugPrint('✅ AuthRepository: Login API successful');
+      final authResponse = AuthResponseModel.fromJson(response.data['data']);
 
       // Save tokens
-      await _storage.saveSecure(
+      debugPrint('💾 AuthRepository: Saving access token...');
+      await _storage.setSecureString(
         StorageKeys.accessToken,
         authResponse.accessToken,
       );
-      await _storage.saveSecure(
+      debugPrint('💾 AuthRepository: Saving refresh token...');
+      await _storage.setSecureString(
         StorageKeys.refreshToken,
         authResponse.refreshToken,
       );
-      await _storage.saveJson(StorageKeys.userData, authResponse.user.toJson());
+
+      // Save user data
+      debugPrint(
+        '💾 AuthRepository: Saving user data for ${authResponse.user.fullName}',
+      );
+      await _storage.setJson(StorageKeys.userData, authResponse.user.toJson());
 
       return authResponse;
     } on DioException catch (e) {
-      throw e.error as AppException;
+      debugPrint('❌ AuthRepository: Login failed - ${e.message}');
+      throw (e.error is AppException)
+          ? e.error as AppException
+          : UnknownException(e.message ?? 'Login failed');
     }
   }
 
@@ -142,11 +157,14 @@ class AuthRepository {
   // Logout
   Future<void> logout() async {
     try {
+      debugPrint('🗑️ AuthRepository: Clearing tokens and user data...');
       // Clear local storage
       await _storage.deleteSecure(StorageKeys.accessToken);
       await _storage.deleteSecure(StorageKeys.refreshToken);
       await _storage.delete(StorageKeys.userData);
+      debugPrint('✅ AuthRepository: Logout complete');
     } catch (e) {
+      debugPrint('❌ AuthRepository: Error during logout - $e');
       // Even if there's an error, clear local data
       await _storage.deleteSecure(StorageKeys.accessToken);
       await _storage.deleteSecure(StorageKeys.refreshToken);
@@ -156,16 +174,23 @@ class AuthRepository {
 
   // Check if user is logged in
   Future<bool> isLoggedIn() async {
+    debugPrint('🔍 AuthRepository: Checking if user is logged in...');
     final token = await _storage.readSecure(StorageKeys.accessToken);
-    return token != null && token.isNotEmpty;
+    final isLoggedIn = token != null && token.isNotEmpty;
+    debugPrint('🔍 AuthRepository: Token exists = $isLoggedIn');
+    return isLoggedIn;
   }
 
   // Get current user from storage
   Future<UserModel?> getCurrentUser() async {
+    debugPrint('👤 AuthRepository: Loading user from storage...');
     final userData = await _storage.readJson(StorageKeys.userData);
     if (userData != null) {
-      return UserModel.fromJson(userData);
+      final user = UserModel.fromJson(userData);
+      debugPrint('👤 AuthRepository: User loaded - ${user.fullName}');
+      return user;
     }
+    debugPrint('❌ AuthRepository: No user data in storage');
     return null;
   }
 
@@ -178,8 +203,4 @@ class AuthRepository {
   Future<String?> getRefreshToken() async {
     return await _storage.readSecure(StorageKeys.refreshToken);
   }
-}
-
-extension on Future<String?> {
-  bool? get isNotEmpty => null;
 }

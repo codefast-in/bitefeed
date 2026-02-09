@@ -1,11 +1,12 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import '../widgets/create_bite/add_photos_step.dart';
 import '../widgets/create_bite/tag_restaurant_step.dart';
 import '../widgets/create_bite/custom_restaurant_step.dart';
 import '../widgets/create_bite/add_details_step.dart';
 import '../widgets/create_bite/success_step.dart';
+import '../providers/bite_provider.dart';
 
 enum CreateBiteStep {
   addPhotos,
@@ -24,45 +25,53 @@ class CreateBiteSheet extends StatefulWidget {
 
 class _CreateBiteSheetState extends State<CreateBiteSheet> {
   CreateBiteStep _currentStep = CreateBiteStep.addPhotos;
-  final List<File> _photos = [];
-  final ImagePicker _picker = ImagePicker();
-  String? _selectedRestaurant;
 
   void _navigateTo(CreateBiteStep step) {
     setState(() => _currentStep = step);
   }
 
-  Future<void> _capturePhoto() async {
-    if (_photos.length >= 4) return;
+  Future<void> _handlePhotoStepNext() async {
+    final provider = Provider.of<BiteProvider>(context, listen: false);
+    if (provider.selectedImages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please add at least one photo')),
+      );
+      return;
+    }
 
-    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-    if (photo != null) {
-      setState(() => _photos.add(File(photo.path)));
+    final success = await provider.uploadImages();
+    if (success) {
+      _navigateTo(CreateBiteStep.tagRestaurant);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(provider.errorMessage ?? 'Upload failed')),
+        );
+      }
     }
   }
 
-  Future<void> _uploadGallery() async {
-    if (_photos.length >= 4) return;
-
-    final List<XFile> images = await _picker.pickMultiImage();
-    if (images.isNotEmpty) {
-      setState(() {
-        final remainingSlots = 4 - _photos.length;
-        final imagesToAdd = images.take(remainingSlots);
-        _photos.addAll(imagesToAdd.map((x) => File(x.path)));
-      });
+  Future<void> _handlePost() async {
+    final provider = Provider.of<BiteProvider>(context, listen: false);
+    final success = await provider.createBite();
+    if (success) {
+      _navigateTo(CreateBiteStep.success);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.errorMessage ?? 'Failed to create bite'),
+          ),
+        );
+      }
     }
-  }
-
-  void _removePhoto(int index) {
-    setState(() => _photos.removeAt(index));
   }
 
   void _createAnother() {
+    final provider = Provider.of<BiteProvider>(context, listen: false);
+    provider.resetCreateFlow();
     setState(() {
       _currentStep = CreateBiteStep.addPhotos;
-      _photos.clear();
-      _selectedRestaurant = null;
     });
   }
 
@@ -81,53 +90,80 @@ class _CreateBiteSheetState extends State<CreateBiteSheet> {
   }
 
   Widget _buildCurrentStep() {
-    switch (_currentStep) {
-      case CreateBiteStep.addPhotos:
-        return AddPhotosStep(
-          photos: _photos,
-          onCapturePhoto: _capturePhoto,
-          onUploadGallery: _uploadGallery,
-          onRemovePhoto: _removePhoto,
-          onNext: () => _navigateTo(CreateBiteStep.tagRestaurant),
-        );
+    return Consumer<BiteProvider>(
+      builder: (context, provider, child) {
+        switch (_currentStep) {
+          case CreateBiteStep.addPhotos:
+            return AddPhotosStep(
+              photos: provider.selectedImages,
+              onCapturePhoto: () async {
+                final ImagePicker picker = ImagePicker();
+                final XFile? photo = await picker.pickImage(
+                  source: ImageSource.camera,
+                );
+                if (photo != null) provider.addImage(photo);
+              },
+              onUploadGallery: () async {
+                final ImagePicker picker = ImagePicker();
+                final List<XFile> images = await picker.pickMultiImage();
+                for (var img in images) {
+                  if (provider.selectedImages.length < 4) {
+                    provider.addImage(img);
+                  }
+                }
+              },
+              onRemovePhoto: provider.removeImage,
+              onNext: _handlePhotoStepNext,
+              isLoading: provider.isLoading,
+            );
 
-      case CreateBiteStep.tagRestaurant:
-        return TagRestaurantStep(
-          selectedRestaurant: _selectedRestaurant,
-          onSelectRestaurant: (name) =>
-              setState(() => _selectedRestaurant = name),
-          onAddCustomRestaurant: () =>
-              _navigateTo(CreateBiteStep.customRestaurant),
-          onContinue: () => _navigateTo(CreateBiteStep.addDetails),
-          onBack: () => _navigateTo(CreateBiteStep.addPhotos),
-        );
+          case CreateBiteStep.tagRestaurant:
+            return TagRestaurantStep(
+              selectedRestaurant: provider.restaurantName,
+              onSelectRestaurant: (name, location) {
+                provider.setRestaurantName(name);
+                if (location != null) provider.setRestaurantLocation(location);
+              },
+              onAddCustomRestaurant: () =>
+                  _navigateTo(CreateBiteStep.customRestaurant),
+              onContinue: () => _navigateTo(CreateBiteStep.addDetails),
+              onBack: () => _navigateTo(CreateBiteStep.addPhotos),
+            );
 
-      case CreateBiteStep.customRestaurant:
-        return CustomRestaurantStep(
-          onRestaurantAdded: (name) {
-            setState(() => _selectedRestaurant = name);
-            _navigateTo(CreateBiteStep.addDetails);
-          },
-          onBack: () => _navigateTo(CreateBiteStep.tagRestaurant),
-        );
+          case CreateBiteStep.customRestaurant:
+            return CustomRestaurantStep(
+              onRestaurantAdded: (name) {
+                provider.setRestaurantName(name);
+                _navigateTo(CreateBiteStep.addDetails);
+              },
+              onBack: () => _navigateTo(CreateBiteStep.tagRestaurant),
+            );
 
-      case CreateBiteStep.addDetails:
-        return AddDetailsStep(
-          restaurantName: _selectedRestaurant!,
-          onBack: () => _navigateTo(CreateBiteStep.tagRestaurant),
-          onPost: () => _navigateTo(CreateBiteStep.success),
-        );
+          case CreateBiteStep.addDetails:
+            return AddDetailsStep(
+              restaurantName: provider.restaurantName,
+              onBack: () => _navigateTo(CreateBiteStep.tagRestaurant),
+              onPost: _handlePost,
+              isLoading: provider.isCreating,
+              rating: provider.rating,
+              onRatingChanged: provider.setRating,
+              caption: provider.caption,
+              onCaptionChanged: provider.setCaption,
+              tags: provider.tags,
+              onAddTag: provider.addTag,
+              onRemoveTag: provider.removeTag,
+            );
 
-      case CreateBiteStep.success:
-        return SuccessStep(
-          onViewInFeed: () {
-            Navigator.pop(context);
-            // Navigate to main/feed if needed, but since this is a modal
-            // on top of main page, closing it reveals the feed/current page
-          },
-          onCreateAnother: _createAnother,
-        );
-    }
+          case CreateBiteStep.success:
+            return SuccessStep(
+              onViewInFeed: () {
+                Navigator.pop(context);
+              },
+              onCreateAnother: _createAnother,
+            );
+        }
+      },
+    );
   }
 }
 

@@ -73,8 +73,18 @@ class AppRoutes {
     login: (context) => const LoginPage(),
     signup: (context) => const SignupPage(),
     forgotPassword: (context) => const ForgotPasswordPage(),
-    verificationCode: (context) => const VerificationCodePage(),
-    createNewPassword: (context) => const CreateNewPasswordPage(),
+    verificationCode: (context) {
+      final email = ModalRoute.of(context)!.settings.arguments as String;
+      return VerificationCodePage(email: email);
+    },
+    createNewPassword: (context) {
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+      return CreateNewPasswordPage(
+        email: args['email'],
+        resetToken: args['resetToken'],
+      );
+    },
     passwordChangedSuccess: (context) => const PasswordChangedSuccessPage(),
     createProfile: (context) => const CreateProfilePage(),
     foodPreferences: (context) => const FoodPreferencesPage(),

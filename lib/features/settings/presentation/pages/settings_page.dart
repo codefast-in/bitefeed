@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/routes/app_routes.dart';
+import '../providers/user_provider.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -10,167 +13,209 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _isNotificationEnabled = false;
-  bool _isLocationEnabled = true;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserProvider>().loadUserProfile();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: _buildDrawer(context),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                gradient: AppColors.primaryGradient,
-              ),
-              child: Stack(
-                children: [
-                  // Grid background pattern
-                  Positioned.fill(child: CustomPaint(painter: _GridPainter())),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 60, bottom: 20),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                icon: Image.asset(
-                                  'assets/icons/whiteBackIcon.png',
-                                  width: 24,
-                                  height: 24,
-                                ),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                              const Text(
-                                'SETTINGS',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                              Builder(
-                                builder: (context) => IconButton(
-                                  icon: Image.asset(
-                                    'assets/icons/drawerMenuIcon.png',
-                                    width: 24,
-                                    height: 24,
-                                  ),
-                                  onPressed: () =>
-                                      Scaffold.of(context).openDrawer(),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Center(
-                          child: Column(
-                            children: [
-                              Container(
-                                width: 100,
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 3,
-                                  ),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(50),
-                                  child: Image.asset(
-                                    'assets/images/userProfilePhoto.png',
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              const Text(
-                                'Jack Smiths',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final user = userProvider.currentUser;
+        if (userProvider.isLoading && user == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return Scaffold(
+          drawer: _buildDrawer(context, userProvider),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: AppColors.primaryGradient,
+                  ),
+                  child: Stack(
+                    children: [
+                      // Grid background pattern
+                      Positioned.fill(
+                        child: CustomPaint(painter: _GridPainter()),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 60, bottom: 20),
+                        child: Column(
                           children: [
-                            _buildStatItem(
-                              '26',
-                              'My Bites',
-                              onTap: () => Navigator.pushNamed(
-                                context,
-                                AppRoutes.myPosts,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: Image.asset(
+                                      'assets/icons/whiteBackIcon.png',
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                  const Text(
+                                    'SETTINGS',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                  Builder(
+                                    builder: (context) => IconButton(
+                                      icon: Image.asset(
+                                        'assets/icons/drawerMenuIcon.png',
+                                        width: 24,
+                                        height: 24,
+                                      ),
+                                      onPressed: () =>
+                                          Scaffold.of(context).openDrawer(),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            Container(
-                              height: 40,
-                              width: 1,
-                              color: Colors.white24,
-                            ),
-                            _buildStatItem(
-                              '85k',
-                              'Followers',
-                              onTap: () => Navigator.pushNamed(
-                                context,
-                                AppRoutes.followers,
+                            const SizedBox(height: 20),
+                            Center(
+                              child: Column(
+                                children: [
+                                  Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 3,
+                                      ),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(50),
+                                      child: user?.profileImage != null
+                                          ? Image.network(
+                                              user!.profileImage!,
+                                              fit: BoxFit.cover,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                    return Image.asset(
+                                                      'assets/images/userProfilePhoto.png',
+                                                      fit: BoxFit.cover,
+                                                    );
+                                                  },
+                                            )
+                                          : Image.asset(
+                                              'assets/images/userProfilePhoto.png',
+                                              fit: BoxFit.cover,
+                                            ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    user?.fullName ?? '',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  if (user?.username != null &&
+                                      user!.username!.isNotEmpty)
+                                    Text(
+                                      '@${user.username}',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.9),
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                            Container(
-                              height: 40,
-                              width: 1,
-                              color: Colors.white24,
-                            ),
-                            _buildStatItem(
-                              '150',
-                              'Following',
-                              onTap: () => Navigator.pushNamed(
-                                context,
-                                AppRoutes.following,
-                              ),
+                            const SizedBox(height: 24),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildStatItem(
+                                  '0', // TODO: Fetch posts count
+                                  'My Bites',
+                                  onTap: () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.myPosts,
+                                  ),
+                                ),
+                                Container(
+                                  height: 40,
+                                  width: 1,
+                                  color: Colors.white24,
+                                ),
+                                _buildStatItem(
+                                  '${user?.followersCount ?? 0}',
+                                  'Followers',
+                                  onTap: () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.followers,
+                                  ),
+                                ),
+                                Container(
+                                  height: 40,
+                                  width: 1,
+                                  color: Colors.white24,
+                                ),
+                                _buildStatItem(
+                                  '${user?.followingCount ?? 0}',
+                                  'Following',
+                                  onTap: () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.following,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(8),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              itemCount: 12,
-              itemBuilder: (context, index) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(
-                    'assets/images/dish${index + 1}.png',
-                    fit: BoxFit.cover,
+                ),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(8),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
                   ),
-                );
-              },
+                  itemCount: 12,
+                  itemBuilder: (context, index) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        'assets/images/dish${index + 1}.png',
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -196,7 +241,9 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildDrawer(BuildContext context) {
+  Widget _buildDrawer(BuildContext context, UserProvider userProvider) {
+    final user = userProvider.currentUser;
+
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.8,
       child: Column(
@@ -267,22 +314,50 @@ class _SettingsPageState extends State<SettingsPage> {
                   'assets/icons/notificationToggleIcon.png',
                   'Notification',
                   hasSwitch: true,
-                  switchValue: _isNotificationEnabled,
-                  onSwitchChanged: (value) {
-                    setState(() {
-                      _isNotificationEnabled = value;
-                    });
+                  switchValue: user?.notificationsEnabled ?? false,
+                  onSwitchChanged: (value) async {
+                    final success = await userProvider.updateProfile(
+                      notificationsEnabled: value,
+                    );
+                    if (success && mounted) {
+                      context.read<AuthProvider>().setCurrentUser(
+                        userProvider.currentUser!,
+                      );
+                    } else if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            userProvider.errorMessage ??
+                                'Failed to update notification settings',
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
                 _buildDrawerItem(
                   'assets/icons/locationToggleIcon.png',
                   'Location',
                   hasSwitch: true,
-                  switchValue: _isLocationEnabled,
-                  onSwitchChanged: (value) {
-                    setState(() {
-                      _isLocationEnabled = value;
-                    });
+                  switchValue: user?.locationEnabled ?? false,
+                  onSwitchChanged: (value) async {
+                    final success = await userProvider.updateProfile(
+                      locationEnabled: value,
+                    );
+                    if (success && mounted) {
+                      context.read<AuthProvider>().setCurrentUser(
+                        userProvider.currentUser!,
+                      );
+                    } else if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            userProvider.errorMessage ??
+                                'Failed to update location settings',
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
                 _buildDrawerItem(

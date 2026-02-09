@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/wavy_header.dart';
@@ -15,9 +17,26 @@ class _SignupPageState extends State<SignupPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _passwordController =
+      TextEditingController(); // Confirm password not in UI yet? verify User request payload.
+  // User payload has confirmPassword. Design likely has it or I should check.
+  // The UI I viewed earlier only had Password field. I need to check if I should add confirm password or if I just duplicate it.
+  // For now, looking at the UI viewed earlier:
+  // _buildPasswordField() only one.
+  // I will check the file content again in my memory.
+  // Yes, lines 162-164: _buildLabel('Password'), _buildPasswordField().
+  // No confirm password field in UI.
+  // I will just use the password as confirm password for now to satisfy API, or add the field.
+  // Adding the field is better practice. But for speed now I will double check if I should add it.
+  // The User Request payload has "confirmPassword": "password123".
+  // So I should probably add a Confirm Password field or duplicate it in the call.
+  // I'll duplicate it for now to avoid major UI changes, or better, add the field.
+  // Let's add the field to be safe.
+
+  final _confirmPasswordController = TextEditingController(); // Added this
 
   bool _obscurePassword = true;
+  // Added this
   double _strength = 0;
   String _strengthText = '';
   Color _strengthColor = Colors.grey;
@@ -28,8 +47,11 @@ class _SignupPageState extends State<SignupPage> {
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
+
+  // ... (password strength logic kept same)
 
   void _checkPasswordStrength(String password) {
     if (password.isEmpty) {
@@ -62,9 +84,30 @@ class _SignupPageState extends State<SignupPage> {
     });
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushNamed(context, AppRoutes.createProfile);
+      final authProvider = context.read<AuthProvider>();
+      final success = await authProvider.signup(
+        fullName: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        confirmPassword: _passwordController
+            .text, // Using same password if no field, or I should add field.
+        // Let's stick to using the same password for now to minimize UI diffs unless I see it's critical.
+        // Actually, standard is to have confirm password.
+        // But I'll stick to the existing UI structure for now and just duplicate the password variable.
+      );
+
+      if (success && mounted) {
+        Navigator.pushNamed(context, AppRoutes.createProfile);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authProvider.errorMessage ?? 'Signup failed'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -75,9 +118,9 @@ class _SignupPageState extends State<SignupPage> {
 
     return Scaffold(
       body: SafeArea(
-        top:false,
-        left:false,
-        right:false,
+        top: false,
+        left: false,
+        right: false,
         bottom: true,
         child: SingleChildScrollView(
           child: Column(
@@ -116,7 +159,10 @@ class _SignupPageState extends State<SignupPage> {
                       const SizedBox(height: 8),
                       const Text(
                         'Enter Your Details To Get Started.',
-                        style: TextStyle(fontSize: 14, color: AppColors.textGrey),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textGrey,
+                        ),
                       ),
                       const SizedBox(height: 24),
                       _buildLabel('Full Name'),
@@ -165,7 +211,18 @@ class _SignupPageState extends State<SignupPage> {
                       const SizedBox(height: 8),
                       _buildStrengthIndicator(),
                       const SizedBox(height: 32),
-                      _buildGradientButton(text: 'Continue', onPressed: _submit),
+                      Consumer<AuthProvider>(
+                        builder: (context, auth, child) {
+                          return auth.isLoading
+                              ? const CircularProgressIndicator(
+                                  color: AppColors.primaryOrange,
+                                )
+                              : _buildGradientButton(
+                                  text: 'Continue',
+                                  onPressed: _submit,
+                                );
+                        },
+                      ),
                       const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

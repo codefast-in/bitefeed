@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/routes/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
-
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/routes/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../settings/presentation/providers/user_provider.dart';
 
 class CreateProfilePage extends StatefulWidget {
   const CreateProfilePage({super.key});
@@ -16,20 +17,63 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   File? _image;
+  XFile? _pickedFile;
   final ImagePicker _picker = ImagePicker();
+  bool _isLoading = false;
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
+        _pickedFile = pickedFile;
         _image = File(pickedFile.path);
       });
     }
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushNamed(context, AppRoutes.foodPreferences);
+      setState(() => _isLoading = true);
+
+      try {
+        final userProvider = context.read<UserProvider>();
+        String? imageUrl;
+
+        if (_pickedFile != null) {
+          imageUrl = await userProvider.uploadImage(_pickedFile!);
+          if (imageUrl == null) {
+            throw Exception('Failed to upload image');
+          }
+        }
+
+        final success = await userProvider.updateProfile(
+          username: _usernameController.text.trim(),
+          profileImage: imageUrl,
+        );
+
+        if (success && mounted) {
+          Navigator.pushNamed(context, AppRoutes.foodPreferences);
+        } else if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                userProvider.errorMessage ?? 'Failed to update profile',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
     }
   }
 
@@ -45,11 +89,10 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
 
     return Scaffold(
       // backgroundColor: AppColors.primaryGradient,
-
       body: Container(
         height: size.height,
         width: size.width,
-        decoration: BoxDecoration(gradient: AppColors.bgGradient, ),
+        decoration: BoxDecoration(gradient: AppColors.bgGradient),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -222,7 +265,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                               borderRadius: BorderRadius.circular(28),
                             ),
                             child: ElevatedButton(
-                              onPressed: _submit,
+                              onPressed: _isLoading ? null : _submit,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.transparent,
                                 shadowColor: Colors.transparent,
@@ -230,14 +273,23 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                                   borderRadius: BorderRadius.circular(28),
                                 ),
                               ),
-                              child: const Text(
-                                'Next',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Next',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                             ),
                           ),
                         ),

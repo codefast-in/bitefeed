@@ -1,13 +1,15 @@
 import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 
 class AddPhotosStep extends StatelessWidget {
-  final List<File> photos;
+  final List<XFile> photos;
   final VoidCallback onCapturePhoto;
   final VoidCallback onUploadGallery;
   final Function(int) onRemovePhoto;
   final VoidCallback onNext;
+  final bool isLoading;
 
   const AddPhotosStep({
     super.key,
@@ -16,6 +18,7 @@ class AddPhotosStep extends StatelessWidget {
     required this.onUploadGallery,
     required this.onRemovePhoto,
     required this.onNext,
+    this.isLoading = false,
   });
 
   @override
@@ -69,7 +72,7 @@ class AddPhotosStep extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Image.file(
-                      photos[index],
+                      File(photos[index].path),
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
@@ -154,14 +157,23 @@ class AddPhotosStep extends StatelessWidget {
                 child: Container(
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: const Text(
-                    'Next',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Next',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
             ),

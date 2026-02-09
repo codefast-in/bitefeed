@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../settings/presentation/providers/user_provider.dart';
 import '../providers/auth_provider.dart';
 
 class FoodPreferencesPage extends StatefulWidget {
@@ -29,7 +30,7 @@ class _FoodPreferencesPageState extends State<FoodPreferencesPage> {
       body: Container(
         height: size.height,
         width: size.width,
-        decoration: BoxDecoration(gradient: AppColors.bgGradient, ),
+        decoration: BoxDecoration(gradient: AppColors.bgGradient),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -194,7 +195,9 @@ class _FoodPreferencesPageState extends State<FoodPreferencesPage> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.black,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                       ),
                                       child: const Text(
@@ -205,8 +208,9 @@ class _FoodPreferencesPageState extends State<FoodPreferencesPage> {
                                     const SizedBox(width: 4),
                                     IconButton(
                                       icon: const Icon(Icons.close),
-                                      onPressed: () =>
-                                          setState(() => _isAddingCustom = false),
+                                      onPressed: () => setState(
+                                        () => _isAddingCustom = false,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -226,28 +230,81 @@ class _FoodPreferencesPageState extends State<FoodPreferencesPage> {
                                 gradient: AppColors.primaryGradient,
                                 borderRadius: BorderRadius.circular(28),
                               ),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.findFriends,
+                              child: Consumer<UserProvider>(
+                                builder: (context, userProvider, _) {
+                                  return ElevatedButton(
+                                    onPressed: userProvider.isLoading
+                                        ? null
+                                        : () async {
+                                            final selected =
+                                                auth.selectedPreferences;
+                                            final available =
+                                                auth.availablePreferences;
+
+                                            final foodPreferences = selected
+                                                .where(
+                                                  (p) => available.contains(p),
+                                                )
+                                                .toList();
+                                            final customPreferences = selected
+                                                .where(
+                                                  (p) => !available.contains(p),
+                                                )
+                                                .toList();
+
+                                            final success = await userProvider
+                                                .updateProfile(
+                                                  foodPreferences:
+                                                      foodPreferences,
+                                                  customFoodPreferences:
+                                                      customPreferences,
+                                                );
+
+                                            if (success && context.mounted) {
+                                              Navigator.pushNamed(
+                                                context,
+                                                AppRoutes.findFriends,
+                                              );
+                                            } else if (context.mounted) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    userProvider.errorMessage ??
+                                                        'Failed to update preferences',
+                                                  ),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            }
+                                          },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      shadowColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(28),
+                                      ),
+                                    ),
+                                    child: userProvider.isLoading
+                                        ? const SizedBox(
+                                            height: 24,
+                                            width: 24,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Text(
+                                            'Next',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                   );
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(28),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Next',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
                               ),
                             ),
                           ),

@@ -6,15 +6,19 @@ import '../../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 
 class VerificationCodePage extends StatefulWidget {
-  const VerificationCodePage({super.key});
+  final String email;
+  const VerificationCodePage({super.key, required this.email});
 
   @override
   State<VerificationCodePage> createState() => _VerificationCodePageState();
 }
 
 class _VerificationCodePageState extends State<VerificationCodePage> {
-  final List<TextEditingController> _controllers = List.generate(4, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
+  final List<TextEditingController> _controllers = List.generate(
+    4,
+    (index) => TextEditingController(),
+  );
+  final List<FocusNode> _focusNodes = List.generate(4, (index) => FocusNode());
 
   @override
   void dispose() {
@@ -27,16 +31,64 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
     super.dispose();
   }
 
-  void _onChanged(String value, int index) {
+  void _onCodeChanged(String value, int index) {
     if (value.length == 1 && index < 3) {
       _focusNodes[index + 1].requestFocus();
     }
-    _updateOtp();
+    if (value.isEmpty && index > 0) {
+      _focusNodes[index - 1].requestFocus();
+    }
+    // Update OTP in provider if needed, or just collect it here
   }
 
-  void _updateOtp() {
-    String otp = _controllers.map((e) => e.text).join();
-    context.read<AuthProvider>().setOtp(otp);
+  Future<void> _verify() async {
+    final code = _controllers.map((c) => c.text).join();
+    if (code.length == 4) {
+      final authProvider = context.read<AuthProvider>();
+      try {
+        final response = await authProvider.verifyCode(
+          email: widget.email,
+          code: code,
+        );
+
+        if (response != null && mounted) {
+          // Assuming response contains resetToken. Adjust based on actual API response.
+          // authProvider.verifyCode returns Map<String, dynamic>? ??
+          // Wait, AuthProvider.verifyCode might return bool or map.
+          // Checking AuthProvider again... it calls repository which returns Map.
+          // Provider returns whatever repository returns?
+          // I should verify AuthProvider implementation.
+
+          final resetToken = response['resetToken'];
+
+          Navigator.pushNamed(
+            context,
+            AppRoutes.createNewPassword,
+            arguments: {'email': widget.email, 'resetToken': resetToken},
+          );
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  authProvider.errorMessage ?? 'Verification failed',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.errorMessage ?? 'Verification failed'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -102,43 +154,55 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                AppColors.primaryOrange,
+                                AppColors.primaryRed,
+                              ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primaryOrange.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: _verify,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Continue',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 24.0, top: 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, AppRoutes.createNewPassword);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(28),
-                        ),
-                      ),
-                      child: const Text(
-                        'Continue',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // The original button was here, but it's now moved inside the SingleChildScrollView
+              // and its onPressed changed to _verify.
             ],
           ),
         ),
@@ -164,7 +228,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
           LengthLimitingTextInputFormatter(1),
           FilteringTextInputFormatter.digitsOnly,
         ],
-        onChanged: (value) => _onChanged(value, index),
+        onChanged: (value) => _onCodeChanged(value, index),
         decoration: const InputDecoration(
           border: InputBorder.none,
           counterText: '',

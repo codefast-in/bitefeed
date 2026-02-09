@@ -110,17 +110,29 @@ class StorageService {
     return prefs.containsKey(key);
   }
 
-  Future<void> saveSecure(accessToken, String accessToken2) async {}
+  // Replace these placeholder methods with actual implementations:
 
-  Future<void> saveJson(userData, Map<String, dynamic> json) async {}
-
-  Future<void> deleteSecure(String accessToken) async {}
-
-  Future<void> delete(String userData) async {}
-
-  Future<String?> readSecure(String accessToken) async {
-    return await _secureStorage.read(key: accessToken);
+  Future<void> saveSecure(String key, String value) async {
+    await setSecureString(key, value);
   }
 
-  Future<dynamic> readJson(String userData) async {}
+  Future<void> saveJson(String key, Map<String, dynamic> value) async {
+    await setJson(key, value);
+  }
+
+  Future<void> deleteSecure(String key) async {
+    await deleteSecureString(key);
+  }
+
+  Future<void> delete(String key) async {
+    await remove(key);
+  }
+
+  Future<String?> readSecure(String key) async {
+    return await getSecureString(key);
+  }
+
+  Future<Map<String, dynamic>?> readJson(String key) async {
+    return getJson(key);
+  }
 }

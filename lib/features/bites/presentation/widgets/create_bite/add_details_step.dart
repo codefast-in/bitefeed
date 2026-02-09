@@ -5,12 +5,28 @@ class AddDetailsStep extends StatefulWidget {
   final String restaurantName;
   final VoidCallback onBack;
   final VoidCallback onPost;
+  final bool isLoading;
+  final double rating;
+  final Function(double) onRatingChanged;
+  final String caption;
+  final Function(String) onCaptionChanged;
+  final List<String> tags;
+  final Function(String) onAddTag;
+  final Function(String) onRemoveTag;
 
   const AddDetailsStep({
     super.key,
     required this.restaurantName,
     required this.onBack,
     required this.onPost,
+    this.isLoading = false,
+    required this.rating,
+    required this.onRatingChanged,
+    required this.caption,
+    required this.onCaptionChanged,
+    required this.tags,
+    required this.onAddTag,
+    required this.onRemoveTag,
   });
 
   @override
@@ -18,10 +34,25 @@ class AddDetailsStep extends StatefulWidget {
 }
 
 class _AddDetailsStepState extends State<AddDetailsStep> {
-  int _rating = 4;
-  bool _isPublic = true;
-  final List<String> _tags = [];
   final TextEditingController _tagController = TextEditingController();
+  late final TextEditingController _captionController;
+  bool _isPublic = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _captionController = TextEditingController(text: widget.caption);
+    _captionController.addListener(() {
+      widget.onCaptionChanged(_captionController.text);
+    });
+  }
+
+  @override
+  void dispose() {
+    _tagController.dispose();
+    _captionController.dispose();
+    super.dispose();
+  }
 
   final List<String> _suggestedTags = [
     '#Vegan',
@@ -140,13 +171,14 @@ class _AddDetailsStepState extends State<AddDetailsStep> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (index) {
                     return GestureDetector(
-                      onTap: () => setState(() => _rating = index + 1),
+                      onTap: () =>
+                          widget.onRatingChanged((index + 1).toDouble()),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Icon(
                           Icons.star,
                           size: 40,
-                          color: index < _rating
+                          color: index < widget.rating
                               ? AppColors.primaryRed
                               : AppColors.primaryRed.withOpacity(0.2),
                         ),
@@ -165,6 +197,7 @@ class _AddDetailsStepState extends State<AddDetailsStep> {
           ),
           const SizedBox(height: 8),
           TextField(
+            controller: _captionController,
             maxLines: 4,
             decoration: InputDecoration(
               hintText: 'Share Your Thoughts....',
@@ -185,16 +218,14 @@ class _AddDetailsStepState extends State<AddDetailsStep> {
             spacing: 8,
             runSpacing: 8,
             children: _suggestedTags.map((tag) {
-              final isSelected = _tags.contains(tag);
+              final isSelected = widget.tags.contains(tag);
               return GestureDetector(
                 onTap: () {
-                  setState(() {
-                    if (isSelected) {
-                      _tags.remove(tag);
-                    } else {
-                      _tags.add(tag);
-                    }
-                  });
+                  if (isSelected) {
+                    widget.onRemoveTag(tag);
+                  } else {
+                    widget.onAddTag(tag);
+                  }
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -243,10 +274,10 @@ class _AddDetailsStepState extends State<AddDetailsStep> {
               ElevatedButton(
                 onPressed: () {
                   if (_tagController.text.isNotEmpty) {
-                    setState(() {
-                      _tags.add('#${_tagController.text.replaceAll('#', '')}');
-                      _tagController.clear();
-                    });
+                    widget.onAddTag(
+                      '#${_tagController.text.replaceAll('#', '')}',
+                    );
+                    _tagController.clear();
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -364,14 +395,23 @@ class _AddDetailsStepState extends State<AddDetailsStep> {
               child: Container(
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                child: const Text(
-                  'Post Bite',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: widget.isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Post Bite',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
           ),

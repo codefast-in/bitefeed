@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../models/bite_model.dart';
-import '../../../auth/data/models/user_model.dart';
+import '../providers/bite_provider.dart';
 import '../widgets/bite_list_item.dart';
 import '../widgets/bite_card_item.dart';
 
@@ -20,46 +21,36 @@ class BitesPage extends StatefulWidget {
 class _BitesPageState extends State<BitesPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _showFilterMenu = false;
   SortOption _selectedSort = SortOption.recent;
   ViewMode _selectedView = ViewMode.list;
-
-  // Sample data
-  List<BiteModel> _myBites = [];
-  List<BiteModel> _savedBites = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _initializeSampleData();
+
+    // Load My Bites when page initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadMyBites();
+    });
+
+    // Listen to tab changes
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        if (_tabController.index == 0) {
+          _loadMyBites();
+        } else {
+          debugPrint('🔖 Loading saved bites...');
+          context.read<BiteProvider>().loadSavedBites();
+        }
+      }
+    });
   }
 
-  void _initializeSampleData() {
-    // Sample data - replace with actual data from API/state management
-    _myBites = [
-      BiteModel(
-        id: '1',
-        restaurantName: 'The Golden Fork',
-        photos: ['https://via.placeholder.com/300'],
-        rating: 5.0,
-        caption: 'Amazing food!',
-        tags: ['italian', 'pasta'],
-        user: UserModel(
-          id: 'user1',
-          username: 'foodlover',
-          email: 'user@example.com',
-          fullName: 'Food Lover',
-          profileImage: '',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        ),
-        createdAt: DateTime(2025, 11, 28),
-        updatedAt: DateTime(2025, 11, 28),
-      ),
-    ];
-
-    _savedBites = List.from(_myBites);
+  void _loadMyBites() {
+    final biteProvider = Provider.of<BiteProvider>(context, listen: false);
+    debugPrint('📱 BitesPage: Loading my bites...');
+    biteProvider.loadMyBites();
   }
 
   @override
@@ -86,11 +77,22 @@ class _BitesPageState extends State<BitesPage>
     return sorted;
   }
 
-  void _deleteBite(String id) {
-    setState(() {
-      _myBites.removeWhere((bite) => bite.id == id);
-      _savedBites.removeWhere((bite) => bite.id == id);
-    });
+  Future<void> _deleteBite(String id) async {
+    final biteProvider = Provider.of<BiteProvider>(context, listen: false);
+    debugPrint('🗑️ BitesPage: Deleting bite $id...');
+
+    final success = await biteProvider.deleteBite(id);
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bite deleted successfully')),
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(biteProvider.errorMessage ?? 'Failed to delete bite'),
+        ),
+      );
+    }
   }
 
   void _navigateToSendTo() {
@@ -126,7 +128,6 @@ class _BitesPageState extends State<BitesPage>
             offset: const Offset(0, 45),
             constraints: const BoxConstraints(minWidth: 150, maxWidth: 180),
             onSelected: (value) {
-              // Handle selection
               if (value == 'Recent' ||
                   value == 'Highest Rated' ||
                   value == 'A-Z') {
@@ -245,26 +246,63 @@ class _BitesPageState extends State<BitesPage>
         ),
         elevation: 0,
       ),
-      body: GestureDetector(
-        onTap: () {
-          if (_showFilterMenu) {
-            setState(() {
-              _showFilterMenu = false;
-            });
+      body: Consumer<BiteProvider>(
+        builder: (context, biteProvider, child) {
+          if (biteProvider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
           }
+
+          if (biteProvider.errorMessage != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(biteProvider.errorMessage!),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _loadMyBites,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildBitesList(
+                _getSortedBites(biteProvider.myBites),
+                showDelete: true,
+              ),
+              _buildBitesList(
+                _getSortedBites(biteProvider.savedBites),
+                showDelete: false,
+              ),
+            ],
+          );
         },
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildBitesList(_getSortedBites(_myBites)),
-            _buildBitesList(_getSortedBites(_savedBites)),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _buildBitesList(List<BiteModel> bites) {
+  Widget _buildBitesList(List<BiteModel> bites, {required bool showDelete}) {
+    if (bites.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.restaurant, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              showDelete ? 'No bites yet' : 'No saved bites',
+              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+      );
+    }
+
     if (_selectedView == ViewMode.list) {
       return ListView.builder(
         padding: const EdgeInsets.only(
@@ -278,7 +316,8 @@ class _BitesPageState extends State<BitesPage>
           return BiteListItem(
             bite: bites[index],
             onShare: _navigateToSendTo,
-            onDelete: () => _deleteBite(bites[index].id),
+            onDelete: showDelete ? () => _deleteBite(bites[index].id) : null,
+            showDelete: showDelete,
           );
         },
       );

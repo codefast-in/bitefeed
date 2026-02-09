@@ -54,12 +54,44 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
+  // Upload generic image
+  Future<String?> uploadImage(XFile image) async {
+    _state = UserState.updating;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final urls = await _userRepository.uploadImages([image]);
+      if (urls.isNotEmpty) {
+        _state = UserState.loaded;
+        notifyListeners();
+        return urls.first;
+      }
+      _state = UserState.loaded;
+      notifyListeners();
+      return null;
+    } catch (e) {
+      debugPrint('Error uploading image: $e');
+      _errorMessage = 'Failed to upload image';
+      _state = UserState.error;
+      notifyListeners();
+      return null;
+    }
+  }
+
   // Update profile
   Future<bool> updateProfile({
     String? name,
-    String? bio,
-    String? location,
+    String? username,
+    String? email,
+    String? bio, // Kept for compatibility but not used in API currently
+    String? location, // Kept for compatibility but not used in API currently
     List<String>? foodPreferences,
+    List<String>? customFoodPreferences,
+    bool? contactsSynced,
+    bool? notificationsEnabled,
+    bool? locationEnabled,
+    String? profileImage,
   }) async {
     _state = UserState.updating;
     _errorMessage = null;
@@ -67,8 +99,15 @@ class UserProvider extends ChangeNotifier {
 
     try {
       final updatedUser = await _userRepository.updateProfile(
-        fullName: name,
+        fullName: name, // Map name to fullName
+        username: username,
+        email: email,
         foodPreferences: foodPreferences,
+        customFoodPreferences: customFoodPreferences,
+        contactsSynced: contactsSynced,
+        notificationsEnabled: notificationsEnabled,
+        locationEnabled: locationEnabled,
+        profileImage: profileImage,
       );
 
       _currentUser = updatedUser;
@@ -147,9 +186,13 @@ class UserProvider extends ChangeNotifier {
 
       // Update user in cache
       if (_usersCache.containsKey(userId)) {
+        final currentFollowers = List<String>.from(
+          _usersCache[userId]!.followers,
+        );
+        currentFollowers.add('CURRENT_USER'); // Optimistic update
         _usersCache[userId] = _usersCache[userId]!.copyWith(
           isFollowing: true,
-          followersCount: _usersCache[userId]!.followersCount + 1,
+          followers: currentFollowers,
         );
       }
 
@@ -168,9 +211,15 @@ class UserProvider extends ChangeNotifier {
 
       // Update user in cache
       if (_usersCache.containsKey(userId)) {
+        final currentFollowers = List<String>.from(
+          _usersCache[userId]!.followers,
+        );
+        if (currentFollowers.isNotEmpty) {
+          currentFollowers.removeLast(); // Remove dummy or optimistic
+        }
         _usersCache[userId] = _usersCache[userId]!.copyWith(
           isFollowing: false,
-          followersCount: _usersCache[userId]!.followersCount - 1,
+          followers: currentFollowers,
         );
       }
 

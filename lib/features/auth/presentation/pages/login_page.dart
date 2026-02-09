@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/wavy_header.dart';
@@ -23,9 +25,24 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _login() {
+  Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushReplacementNamed(context, AppRoutes.main);
+      final authProvider = context.read<AuthProvider>();
+      final success = await authProvider.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (success && mounted) {
+        Navigator.pushReplacementNamed(context, AppRoutes.main);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authProvider.errorMessage ?? 'Login failed'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -124,7 +141,18 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      _buildGradientButton(text: 'Continue', onPressed: _login),
+                      Consumer<AuthProvider>(
+                        builder: (context, auth, child) {
+                          return auth.isLoading
+                              ? const CircularProgressIndicator(
+                                  color: AppColors.primaryOrange,
+                                )
+                              : _buildGradientButton(
+                                  text: 'Continue',
+                                  onPressed: _login,
+                                );
+                        },
+                      ),
                       const SizedBox(height: 32),
                       _buildDivider(),
                       const SizedBox(height: 32),
@@ -325,23 +353,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
         const Expanded(child: Divider(color: AppColors.borderGrey)),
       ],
-    );
-  }
-}
-
-class _SocialButton extends StatelessWidget {
-  final String icon;
-  const _SocialButton({required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.borderGrey),
-      ),
-      child: Image.asset(icon, width: 30, height: 30),
     );
   }
 }

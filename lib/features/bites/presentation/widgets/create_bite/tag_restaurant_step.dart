@@ -3,7 +3,7 @@ import '../../../../../core/theme/app_colors.dart';
 
 class TagRestaurantStep extends StatelessWidget {
   final String? selectedRestaurant;
-  final Function(String) onSelectRestaurant;
+  final Function(String, Map<String, dynamic>?) onSelectRestaurant;
   final VoidCallback onAddCustomRestaurant;
   final VoidCallback onContinue;
   final VoidCallback onBack;
@@ -20,11 +20,51 @@ class TagRestaurantStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final restaurants = [
-      {'name': 'The Golden Fork', 'address': '123 Main St, Downtown'},
-      {'name': 'Morning Brew Café', 'address': '123 Main St, Downtown'},
-      {'name': 'Sweet Bakery', 'address': '123 Main St, Downtown'},
-      {'name': 'Sakura Sushi Bar', 'address': '123 Main St, Downtown'},
-      {'name': 'Bella\'s Pizzeria', 'address': '123 Main St, Downtown'},
+      {
+        'name': 'The Golden Fork',
+        'address': '123 Main St, Downtown',
+        'location': {
+          'type': 'Point',
+          'coordinates': [-122.4194, 37.7749],
+          'address': '123 Main St, Downtown',
+        },
+      },
+      {
+        'name': 'Morning Brew Café',
+        'address': '123 Main St, Downtown',
+        'location': {
+          'type': 'Point',
+          'coordinates': [-122.4195, 37.7750],
+          'address': '123 Main St, Downtown',
+        },
+      },
+      {
+        'name': 'Sweet Bakery',
+        'address': '123 Main St, Downtown',
+        'location': {
+          'type': 'Point',
+          'coordinates': [-122.4196, 37.7751],
+          'address': '123 Main St, Downtown',
+        },
+      },
+      {
+        'name': 'Sakura Sushi Bar',
+        'address': '123 Main St, Downtown',
+        'location': {
+          'type': 'Point',
+          'coordinates': [-122.4197, 37.7752],
+          'address': '123 Main St, Downtown',
+        },
+      },
+      {
+        'name': 'Bella\'s Pizzeria',
+        'address': '123 Main St, Downtown',
+        'location': {
+          'type': 'Point',
+          'coordinates': [-122.4198, 37.7753],
+          'address': '123 Main St, Downtown',
+        },
+      },
     ];
 
     return Container(
@@ -136,7 +176,10 @@ class TagRestaurantStep extends StatelessWidget {
 
                 return GestureDetector(
                   onTap: () {
-                    onSelectRestaurant(restaurant['name']!);
+                    onSelectRestaurant(
+                      restaurant['name'] as String,
+                      restaurant['location'] as Map<String, dynamic>?,
+                    );
                     onContinue();
                   },
                   child: Container(
@@ -169,7 +212,7 @@ class TagRestaurantStep extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              restaurant['name']!,
+                              restaurant['name'] as String,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -177,7 +220,7 @@ class TagRestaurantStep extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              restaurant['address']!,
+                              restaurant['address'] as String,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: isSelected

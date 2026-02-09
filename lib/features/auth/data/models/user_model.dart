@@ -11,11 +11,21 @@ class UserModel extends Equatable {
   final bool contactsSynced;
   final bool notificationsEnabled;
   final bool locationEnabled;
-  final int followersCount;
-  final int followingCount;
-  final bool isFollowing;
+  final bool
+  isFollowing; // Added this one back too just in case, though it's in the constructor
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  // New field
+  final List<String> followers;
+  final List<String> following;
+  final String? role;
+  final String? status;
+  final bool profileSetupComplete;
+
+  // Derived properties for counts
+  int get followersCount => followers.length;
+  int get followingCount => following.length;
 
   const UserModel({
     required this.id,
@@ -28,8 +38,11 @@ class UserModel extends Equatable {
     this.contactsSynced = false,
     this.notificationsEnabled = true,
     this.locationEnabled = false,
-    this.followersCount = 0,
-    this.followingCount = 0,
+    this.followers = const [],
+    this.following = const [],
+    this.role,
+    this.status,
+    this.profileSetupComplete = false,
     this.isFollowing = false,
     required this.createdAt,
     required this.updatedAt,
@@ -51,8 +64,15 @@ class UserModel extends Equatable {
       contactsSynced: json['contactsSynced'] ?? false,
       notificationsEnabled: json['notificationsEnabled'] ?? true,
       locationEnabled: json['locationEnabled'] ?? false,
-      followersCount: json['followersCount'] ?? 0,
-      followingCount: json['followingCount'] ?? 0,
+      followers: json['followers'] != null
+          ? List<String>.from(json['followers'])
+          : [],
+      following: json['following'] != null
+          ? List<String>.from(json['following'])
+          : [],
+      role: json['role'],
+      status: json['status'],
+      profileSetupComplete: json['profileSetupComplete'] ?? false,
       isFollowing: json['isFollowing'] ?? false,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
@@ -75,8 +95,11 @@ class UserModel extends Equatable {
       'contactsSynced': contactsSynced,
       'notificationsEnabled': notificationsEnabled,
       'locationEnabled': locationEnabled,
-      'followersCount': followersCount,
-      'followingCount': followingCount,
+      'followers': followers,
+      'following': following,
+      'role': role,
+      'status': status,
+      'profileSetupComplete': profileSetupComplete,
       'isFollowing': isFollowing,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
@@ -94,8 +117,11 @@ class UserModel extends Equatable {
     bool? contactsSynced,
     bool? notificationsEnabled,
     bool? locationEnabled,
-    int? followersCount,
-    int? followingCount,
+    List<String>? followers,
+    List<String>? following,
+    String? role,
+    String? status,
+    bool? profileSetupComplete,
     bool? isFollowing,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -112,8 +138,11 @@ class UserModel extends Equatable {
       contactsSynced: contactsSynced ?? this.contactsSynced,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       locationEnabled: locationEnabled ?? this.locationEnabled,
-      followersCount: followersCount ?? this.followersCount,
-      followingCount: followingCount ?? this.followingCount,
+      followers: followers ?? this.followers,
+      following: following ?? this.following,
+      role: role ?? this.role,
+      status: status ?? this.status,
+      profileSetupComplete: profileSetupComplete ?? this.profileSetupComplete,
       isFollowing: isFollowing ?? this.isFollowing,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -132,8 +161,11 @@ class UserModel extends Equatable {
     contactsSynced,
     notificationsEnabled,
     locationEnabled,
-    followersCount,
-    followingCount,
+    followers,
+    following,
+    role,
+    status,
+    profileSetupComplete,
     isFollowing,
     createdAt,
     updatedAt,

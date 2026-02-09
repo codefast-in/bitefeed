@@ -4,10 +4,6 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../auth/data/models/user_model.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/network/api_endpoints.dart';
-import '../../../core/network/api_exception.dart';
-import '../../auth/data/models/user_model.dart';
 
 class UserRepository {
   final ApiClient _apiClient;
@@ -19,9 +15,19 @@ class UserRepository {
   Future<UserModel> getUserProfile() async {
     try {
       final response = await _apiClient.get(ApiEndpoints.profile);
-      return UserModel.fromJson(response.data['user'] ?? response.data);
+      final data = response.data;
+
+      if (data['success'] == false) {
+        throw UnknownException(data['message'] ?? 'Failed to load profile');
+      }
+
+      final userData =
+          data['data']?['user'] ?? data['user'] ?? data['data'] ?? data;
+
+      return UserModel.fromJson(userData);
     } on DioException catch (e) {
-      throw e.error as AppException;
+      if (e.error is AppException) throw e.error as AppException;
+      throw UnknownException(e.message ?? 'Unknown network error');
     }
   }
 
@@ -29,6 +35,7 @@ class UserRepository {
   Future<UserModel> updateProfile({
     String? fullName,
     String? username,
+    String? email,
     List<String>? foodPreferences,
     String? profileImage,
     bool? contactsSynced,
@@ -40,8 +47,9 @@ class UserRepository {
       final response = await _apiClient.post(
         ApiEndpoints.updateProfile,
         data: {
-          if (fullName != null) 'fullName': fullName,
-          if (username != null) 'username': username,
+          if (fullName != null && fullName.isNotEmpty) 'fullName': fullName,
+          if (username != null && username.isNotEmpty) 'username': username,
+          if (email != null && email.isNotEmpty) 'email': email,
           if (foodPreferences != null) 'foodPreferences': foodPreferences,
           if (profileImage != null) 'profileImage': profileImage,
           if (contactsSynced != null) 'contactsSynced': contactsSynced,
@@ -53,9 +61,18 @@ class UserRepository {
         },
       );
 
-      return UserModel.fromJson(response.data['user'] ?? response.data);
+      final data = response.data;
+      if (data['success'] == false) {
+        throw UnknownException(data['message'] ?? 'Failed to update profile');
+      }
+
+      final userData =
+          data['data']?['user'] ?? data['user'] ?? data['data'] ?? data;
+
+      return UserModel.fromJson(userData);
     } on DioException catch (e) {
-      throw e.error as AppException;
+      if (e.error is AppException) throw e.error as AppException;
+      throw UnknownException(e.message ?? 'Unknown network error');
     }
   }
 
@@ -79,11 +96,22 @@ class UserRepository {
         data: formData,
       );
 
+      final data = response.data;
+      if (data['success'] == false) {
+        throw UnknownException(data['message'] ?? 'Image upload failed');
+      }
+
+      // FIXED: Check for 'images' key nested inside 'data'
       final List<dynamic> urls =
-          response.data['imageUrls'] ?? response.data['urls'] ?? [];
+          data['data']?['images'] ??
+          data['data']?['imageUrls'] ??
+          data['imageUrls'] ??
+          data['urls'] ??
+          [];
       return urls.cast<String>();
     } on DioException catch (e) {
-      throw e.error as AppException;
+      if (e.error is AppException) throw e.error as AppException;
+      throw UnknownException(e.message ?? 'Image upload failed');
     }
   }
 
@@ -105,7 +133,12 @@ class UserRepository {
         queryParameters: {'userId': userId},
       );
 
-      final List<dynamic> data = response.data['threads'] ?? response.data;
+      // FIXED: Check for nested data structure
+      final List<dynamic> data =
+          response.data['data']?['threads'] ??
+          response.data['threads'] ??
+          response.data ??
+          [];
       return data.cast<Map<String, dynamic>>();
     } on DioException catch (e) {
       throw e.error as AppException;
