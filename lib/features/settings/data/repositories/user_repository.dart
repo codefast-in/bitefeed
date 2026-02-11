@@ -3,7 +3,11 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_exception.dart';
-import '../../../auth/data/models/user_model.dart';
+import 'package:bitefeed/features/auth/data/models/user_model.dart';
+import 'package:bitefeed/features/settings/data/models/blocked_user_model.dart';
+import 'package:bitefeed/features/settings/data/models/other_user_profile_model.dart';
+import 'package:bitefeed/features/messages/data/models/chat_thread_model.dart';
+import 'package:bitefeed/core/models/pagination_model.dart';
 
 class UserRepository {
   final ApiClient _apiClient;
@@ -121,27 +125,107 @@ class UserRepository {
       await _apiClient.post(ApiEndpoints.followUser, data: {'userId': userId});
       return true;
     } on DioException catch (e) {
-      throw e.error as AppException;
+      if (e.error is AppException) throw e.error as AppException;
+      throw UnknownException(e.message ?? 'Unknown network error');
     }
   }
 
-  // Get chat threads
-  Future<List<Map<String, dynamic>>> getChatThreads(String userId) async {
+  // Get other user profile with bites & pagination
+  Future<OtherUserProfileModel> getOtherUserProfile(
+    String userId, {
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      final response = await _apiClient.get(
+        ApiEndpoints.otherUserProfile,
+        queryParameters: {'userId': userId, 'page': page, 'limit': limit},
+      );
+
+      final data = response.data;
+      if (data['success'] == false) {
+        throw UnknownException(
+          data['message'] ?? 'Failed to load user profile',
+        );
+      }
+
+      return OtherUserProfileModel.fromJson(data['data'] ?? data);
+    } on DioException catch (e) {
+      if (e.error is AppException) throw e.error as AppException;
+      throw UnknownException(e.message ?? 'Unknown network error');
+    }
+  }
+
+  // Toggle block user
+  Future<bool> toggleBlockUser(String targetUserId) async {
+    try {
+      final response = await _apiClient.post(
+        ApiEndpoints.toggleBlockUser,
+        data: {'targetUserId': targetUserId},
+      );
+
+      final data = response.data;
+      if (data['success'] == false) {
+        throw UnknownException(data['message'] ?? 'Failed to toggle block');
+      }
+
+      return true;
+    } on DioException catch (e) {
+      if (e.error is AppException) throw e.error as AppException;
+      throw UnknownException(e.message ?? 'Unknown network error');
+    }
+  }
+
+  // Get blocked users
+  Future<Map<String, dynamic>> getBlockedUsers({
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      final response = await _apiClient.get(
+        ApiEndpoints.getBlockedUsers,
+        queryParameters: {'page': page, 'limit': limit},
+      );
+
+      final data = response.data;
+      if (data['success'] == false) {
+        throw UnknownException(
+          data['message'] ?? 'Failed to load blocked users',
+        );
+      }
+
+      final List<dynamic> results = data['data']?['results'] ?? [];
+      final users = results.map((u) => BlockedUserModel.fromJson(u)).toList();
+      final pagination = PaginationModel.fromJson(
+        data['data']?['pagination'] ?? {},
+      );
+
+      return {'users': users, 'pagination': pagination};
+    } on DioException catch (e) {
+      if (e.error is AppException) throw e.error as AppException;
+      throw UnknownException(e.message ?? 'Unknown network error');
+    }
+  }
+
+  // Get chat threads (DM structure)
+  Future<ChatThreadModel> getChatThreads(String userId) async {
     try {
       final response = await _apiClient.get(
         ApiEndpoints.chatThreads,
         queryParameters: {'userId': userId},
       );
 
-      // FIXED: Check for nested data structure
-      final List<dynamic> data =
-          response.data['data']?['threads'] ??
-          response.data['threads'] ??
-          response.data ??
-          [];
-      return data.cast<Map<String, dynamic>>();
+      final data = response.data;
+      if (data['success'] == false) {
+        throw UnknownException(
+          data['message'] ?? 'Failed to load chat threads',
+        );
+      }
+
+      return ChatThreadModel.fromJson(data['data'] ?? data);
     } on DioException catch (e) {
-      throw e.error as AppException;
+      if (e.error is AppException) throw e.error as AppException;
+      throw UnknownException(e.message ?? 'Unknown network error');
     }
   }
 }

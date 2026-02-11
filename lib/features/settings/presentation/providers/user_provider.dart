@@ -3,14 +3,32 @@ import 'package:image_picker/image_picker.dart';
 import '../../../settings/data/repositories/user_repository.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../../../core/network/api_exception.dart';
+import '../../../../core/storage/storage_service.dart';
+import '../../../../core/storage/storage_keys.dart';
+import 'package:bitefeed/features/auth/presentation/providers/auth_provider.dart';
+import 'package:bitefeed/features/settings/data/models/other_user_profile_model.dart';
+import 'package:bitefeed/features/settings/data/models/blocked_user_model.dart';
+import 'package:bitefeed/core/models/pagination_model.dart';
 
 enum UserState { initial, loading, loaded, updating, error }
 
 class UserProvider extends ChangeNotifier {
   final UserRepository _userRepository;
+  final StorageService _storage;
+  AuthProvider? _authProvider;
 
-  UserProvider({UserRepository? userRepository})
-    : _userRepository = userRepository ?? UserRepository();
+  UserProvider({UserRepository? userRepository, StorageService? storage})
+    : _userRepository = userRepository ?? UserRepository(),
+      _storage = storage ?? StorageService();
+
+  void updateAuth(AuthProvider authProvider) {
+    _authProvider = authProvider;
+    // Sync current user from AuthProvider if not loaded here yet
+    if (_currentUser == null && authProvider.currentUser != null) {
+      _currentUser = authProvider.currentUser;
+      _usersCache[_currentUser!.id] = _currentUser!;
+    }
+  }
 
   // State
   UserState _state = UserState.initial;
@@ -18,13 +36,16 @@ class UserProvider extends ChangeNotifier {
   Map<String, UserModel> _usersCache = {};
   List<UserModel> _followers = [];
   List<UserModel> _following = [];
+  OtherUserProfileModel? _otherUserProfile;
+  List<BlockedUserModel> _blockedUsers = [];
+  PaginationModel? _blockedPagination;
   String? _errorMessage;
-
-  // Getters
-  UserState get state => _state;
   UserModel? get currentUser => _currentUser;
   List<UserModel> get followers => _followers;
   List<UserModel> get following => _following;
+  OtherUserProfileModel? get otherUserProfile => _otherUserProfile;
+  List<BlockedUserModel> get blockedUsers => _blockedUsers;
+  PaginationModel? get blockedPagination => _blockedPagination;
   String? get errorMessage => _errorMessage;
   bool get isLoading => _state == UserState.loading;
   bool get isUpdating => _state == UserState.updating;
@@ -41,6 +62,13 @@ class UserProvider extends ChangeNotifier {
       final user = await _userRepository.getUserProfile();
       _currentUser = user;
       _usersCache[user.id] = user;
+
+      // Persist to storage
+      await _storage.setJson(StorageKeys.userData, user.toJson());
+
+      // Sync with AuthProvider
+      _authProvider?.setCurrentUser(user);
+
       _state = UserState.loaded;
       notifyListeners();
     } on AppException catch (e) {
@@ -99,19 +127,28 @@ class UserProvider extends ChangeNotifier {
 
     try {
       final updatedUser = await _userRepository.updateProfile(
-        fullName: name, // Map name to fullName
-        username: username,
-        email: email,
-        foodPreferences: foodPreferences,
-        customFoodPreferences: customFoodPreferences,
-        contactsSynced: contactsSynced,
-        notificationsEnabled: notificationsEnabled,
-        locationEnabled: locationEnabled,
-        profileImage: profileImage,
+        fullName: name ?? _currentUser?.fullName,
+        username: username ?? _currentUser?.username,
+        email: email ?? _currentUser?.email,
+        foodPreferences: foodPreferences ?? _currentUser?.foodPreferences,
+        customFoodPreferences:
+            customFoodPreferences ?? _currentUser?.customFoodPreferences,
+        contactsSynced: contactsSynced ?? _currentUser?.contactsSynced,
+        notificationsEnabled:
+            notificationsEnabled ?? _currentUser?.notificationsEnabled,
+        locationEnabled: locationEnabled ?? _currentUser?.locationEnabled,
+        profileImage: profileImage ?? _currentUser?.profileImage,
       );
 
       _currentUser = updatedUser;
       _usersCache[updatedUser.id] = updatedUser;
+
+      // Persist to storage
+      await _storage.setJson(StorageKeys.userData, updatedUser.toJson());
+
+      // Sync with AuthProvider
+      _authProvider?.setCurrentUser(updatedUser);
+
       _state = UserState.loaded;
       notifyListeners();
       return true;
@@ -150,6 +187,12 @@ class UserProvider extends ChangeNotifier {
 
       _currentUser = updatedUser;
       _usersCache[updatedUser.id] = updatedUser;
+
+      // Persist to storage
+      await _storage.setJson(StorageKeys.userData, updatedUser.toJson());
+
+      // Sync with AuthProvider
+      _authProvider?.setCurrentUser(updatedUser);
 
       _state = UserState.loaded;
       notifyListeners();
@@ -204,6 +247,81 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
+  // Load other user profile
+  Future<void> loadOtherUserProfile(
+    String userId, {
+    int page = 1,
+    int limit = 10,
+  }) async {
+    _state = UserState.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final profile = await _userRepository.getOtherUserProfile(
+        userId,
+        page: page,
+        limit: limit,
+      );
+      _otherUserProfile = profile;
+      _state = UserState.loaded;
+      notifyListeners();
+    } on AppException catch (e) {
+      _errorMessage = e.message;
+      _state = UserState.error;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'An unexpected error occurred';
+      _state = UserState.error;
+      notifyListeners();
+    }
+  }
+
+  // Toggle block user
+  Future<bool> toggleBlockUser(String targetUserId) async {
+    try {
+      await _userRepository.toggleBlockUser(targetUserId);
+
+      // Refresh blocked users if we were on that screen or just clear/update local state
+      // For simplicity, we just return success and let UI handle refresh or removal
+      return true;
+    } on AppException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    }
+  }
+
+  // Load blocked users
+  Future<void> loadBlockedUsers({int page = 1, int limit = 10}) async {
+    _state = UserState.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await _userRepository.getBlockedUsers(
+        page: page,
+        limit: limit,
+      );
+      if (page == 1) {
+        _blockedUsers = response['users'] as List<BlockedUserModel>;
+      } else {
+        _blockedUsers.addAll(response['users'] as List<BlockedUserModel>);
+      }
+      _blockedPagination = response['pagination'] as PaginationModel;
+
+      _state = UserState.loaded;
+      notifyListeners();
+    } on AppException catch (e) {
+      _errorMessage = e.message;
+      _state = UserState.error;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'An unexpected error occurred';
+      _state = UserState.error;
+      notifyListeners();
+    }
+  }
+
   // Unfollow user
   Future<bool> unfollowUser(String userId) async {
     try {
@@ -241,12 +359,11 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Change password not implemented in backend yet
-      throw const UnknownException('Change password API not yet implemented');
-
-      _state = UserState.loaded;
+      // TODO: Implement when backend API is available
+      _errorMessage = 'Change password API not yet implemented';
+      _state = UserState.error;
       notifyListeners();
-      return true;
+      return false;
     } on AppException catch (e) {
       _errorMessage = e.message;
       _state = UserState.error;

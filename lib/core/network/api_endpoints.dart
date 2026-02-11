@@ -16,6 +16,10 @@ class ApiEndpoints {
   static const String uploadImages = '$users/upload-images';
   static const String followUser = '$users/follow';
   static const String chatThreads = '$users/chat-threads';
+  static const String otherUserProfile = '$users/getOtherUserProfile';
+  static const String searchUserAndBites = '$users/searchUserAndBites';
+  static const String toggleBlockUser = '$users/toggleBlockUser';
+  static const String getBlockedUsers = '$users/getBlockedUsers';
 
   // Bite endpoints
   static const String biteFeed = '$bites/feed';
@@ -67,14 +71,13 @@ class ApiEndpoints {
   static const String postDetails = '/post';
 
   static const String userPosts = '/user/posts';
-static const String likePost = '/post/like';
+  static const String likePost = '/post/like';
   static const String unlikePost = '/post/unlike';
-static const String savePost = '/post/save';
+  static const String savePost = '/post/save';
   static const String unsavePost = '/post/unsave';
-static const String savedPosts = '/saved-posts';
+  static const String savedPosts = '/saved-posts';
   static const String deletePost = '/post';
-static const String searchUsers = '/searchUsers';
-
+  static const String searchUsers = '/searchUsers';
 
   // Helper method to build URL with ID
   static String withId(String endpoint, String id) => '$endpoint/$id';

@@ -49,7 +49,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<MessageProvider>(
           create: (_) => MessageProvider(),
         ),
-        ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, UserProvider>(
+          create: (_) => UserProvider(),
+          update: (_, auth, user) => user!..updateAuth(auth),
+        ),
         ChangeNotifierProvider<SearchProvider>(create: (_) => SearchProvider()),
       ],
       child: Consumer<AuthProvider>(

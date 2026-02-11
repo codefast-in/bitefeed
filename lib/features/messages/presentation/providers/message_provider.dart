@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../data/repositories/message_repository.dart';
-import '../../data/models/message_model.dart';
-import '../../../../core/network/api_exception.dart';
+import 'package:bitefeed/features/messages/data/repositories/message_repository.dart';
+import 'package:bitefeed/features/messages/data/models/message_model.dart';
+import 'package:bitefeed/core/network/api_exception.dart';
+import 'package:bitefeed/features/messages/data/models/chat_thread_model.dart';
+import 'package:bitefeed/features/settings/data/repositories/user_repository.dart';
 
 enum MessagesState { initial, loading, loaded, sending, error }
 
@@ -17,6 +19,7 @@ class MessageProvider extends ChangeNotifier {
   Map<String, List<MessageModel>> _messagesByConversation = {};
   String? _errorMessage;
   String? _currentConversationId;
+  ChatThreadModel? _currentThread;
 
   // Getters
   MessagesState get state => _state;
@@ -24,6 +27,7 @@ class MessageProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isLoading => _state == MessagesState.loading;
   bool get isSending => _state == MessagesState.sending;
+  ChatThreadModel? get currentThread => _currentThread;
 
   List<MessageModel> getMessages(String conversationId) {
     return _messagesByConversation[conversationId] ?? [];
@@ -212,6 +216,27 @@ class MessageProvider extends ChangeNotifier {
     } on AppException catch (e) {
       _errorMessage = e.message;
       return false;
+    }
+  }
+
+  // Load chat threads (DM specific) from UserRepository
+  Future<void> loadChatThreads(String userId, UserRepository userRepo) async {
+    _state = MessagesState.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _currentThread = await userRepo.getChatThreads(userId);
+      _state = MessagesState.loaded;
+      notifyListeners();
+    } on AppException catch (e) {
+      _errorMessage = e.message;
+      _state = MessagesState.error;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'An unexpected error occurred';
+      _state = MessagesState.error;
+      notifyListeners();
     }
   }
 

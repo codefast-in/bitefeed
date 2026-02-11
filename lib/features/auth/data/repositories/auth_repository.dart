@@ -37,24 +37,31 @@ class AuthRepository {
       );
 
       debugPrint('✅ AuthRepository: Signup API successful');
-      final authResponse = AuthResponseModel.fromJson(response.data);
+      final authResponse = AuthResponseModel.fromJson(response.data['data']);
 
       // Save tokens
       debugPrint('💾 AuthRepository: Saving tokens after signup...');
-      await _storage.saveSecure(
+      await _storage.setSecureString(
         StorageKeys.accessToken,
         authResponse.accessToken,
       );
-      await _storage.saveSecure(
+      await _storage.setSecureString(
         StorageKeys.refreshToken,
         authResponse.refreshToken,
       );
-      await _storage.saveJson(StorageKeys.userData, authResponse.user.toJson());
+
+      // Save user data
+      debugPrint(
+        '💾 AuthRepository: Saving user data for ${authResponse.user.fullName}',
+      );
+      await _storage.setJson(StorageKeys.userData, authResponse.user.toJson());
 
       return authResponse;
     } on DioException catch (e) {
       debugPrint('❌ AuthRepository: Signup failed - ${e.message}');
-      throw e.error as AppException;
+      throw (e.error is AppException)
+          ? e.error as AppException
+          : UnknownException(e.message ?? 'Signup failed');
     }
   }
 
