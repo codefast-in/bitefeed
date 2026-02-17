@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/repositories/bite_repository.dart';
 import '../../models/bite_model.dart';
 import '../../../../core/network/api_exception.dart';
@@ -58,6 +59,34 @@ class BiteProvider extends ChangeNotifier {
   double get rating => _rating;
   String get caption => _caption;
   List<String> get tags => _tags;
+
+  // Sync with AuthProvider
+  void updateAuth(AuthProvider authProvider) {
+    if (authProvider.currentUser?.id != _currentUserId) {
+      debugPrint(
+        '🔄 BiteProvider: User changed. Resetting bites data for ${authProvider.currentUser?.fullName}...',
+      );
+      _currentUserId = authProvider.currentUser?.id;
+      clearData();
+      if (_currentUserId != null) {
+        loadBites();
+      }
+    }
+  }
+
+  // Reset all state (useful on logout/signup)
+  void clearData() {
+    _feedBites = [];
+    _myBites = [];
+    _savedBites = [];
+    _currentPage = 1;
+    _totalPages = 1;
+    _isLoadingMore = false;
+    _errorMessage = null;
+    _state = BitesState.initial;
+    resetCreateFlow();
+    notifyListeners();
+  }
 
   // Load bites (feed) - initial load
   Future<void> loadBites({

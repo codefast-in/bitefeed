@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../home/data/repositories/post_repository.dart';
 import '../../../home/data/models/post_model.dart';
 import '../../../../core/network/api_exception.dart';
@@ -26,6 +27,29 @@ class PostProvider extends ChangeNotifier {
   bool get isLoading => _state == PostsState.loading;
   bool get isLoadingMore => _state == PostsState.loadingMore;
   bool get isRefreshing => _state == PostsState.refreshing;
+
+  // Sync with AuthProvider
+  void updateAuth(AuthProvider authProvider) {
+    // Note: PostProvider doesn't currently store userId, but we can detect changes
+    // Alternatively, we can just clear data if the auth state transitions to authenticated from something else
+    // or if the user object actually changes.
+    if (authProvider.currentUser != null) {
+      // If we want to reload posts for the new user
+      // refresh();
+    } else {
+      clearData();
+    }
+  }
+
+  // Reset all state (useful on logout/signup)
+  void clearData() {
+    _posts = [];
+    _currentPage = 1;
+    _hasMore = true;
+    _errorMessage = null;
+    _state = PostsState.initial;
+    notifyListeners();
+  }
 
   // Load feed
   Future<void> loadFeed({bool refresh = false}) async {

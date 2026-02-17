@@ -90,6 +90,7 @@ class _SignupPageState extends State<SignupPage> {
       final success = await authProvider.signup(
         fullName: _nameController.text.trim(),
         email: _emailController.text.trim(),
+        phoneNumber: _phoneController.text.trim(),
         password: _passwordController.text,
         confirmPassword: _passwordController
             .text, // Using same password if no field, or I should add field.

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/config/app_config.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../providers/user_provider.dart';
@@ -19,6 +21,15 @@ class _SettingsPageState extends State<SettingsPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<UserProvider>().loadUserProfile();
     });
+  }
+
+  String _getImageUrl(String? path) {
+    if (path == null || path.isEmpty) return '';
+    if (path.startsWith('http')) return path;
+
+    // Assuming images are served from the root of the server
+    final baseUrl = AppConfig.apiBaseUrl.replaceAll('/api/v1', '');
+    return '$baseUrl/$path';
   }
 
   @override
@@ -108,7 +119,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                       borderRadius: BorderRadius.circular(50),
                                       child: user?.profileImage != null
                                           ? Image.network(
-                                              user!.profileImage!,
+                                              _getImageUrl(user!.profileImage),
+                                              // user!.profileImage!,
                                               fit: BoxFit.cover,
                                               errorBuilder:
                                                   (context, error, stackTrace) {
@@ -316,6 +328,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   hasSwitch: true,
                   switchValue: user?.notificationsEnabled ?? false,
                   onSwitchChanged: (value) async {
+                    if (value) {
+                      final status = await Permission.notification.request();
+                      if (!status.isGranted) return;
+                    }
                     final success = await userProvider.updateProfile(
                       notificationsEnabled: value,
                     );
@@ -341,6 +357,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   hasSwitch: true,
                   switchValue: user?.locationEnabled ?? false,
                   onSwitchChanged: (value) async {
+                    if (value) {
+                      final status = await Permission.location.request();
+                      if (!status.isGranted) return;
+                    }
                     final success = await userProvider.updateProfile(
                       locationEnabled: value,
                     );

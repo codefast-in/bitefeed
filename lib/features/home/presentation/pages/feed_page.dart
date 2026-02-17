@@ -312,60 +312,69 @@ class _FeedPageState extends State<FeedPage> {
                   top: 12,
                   left: 12,
                   right: 12,
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Colors.white,
-                        child: Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: CircleAvatar(
-                            radius: 16,
-                            backgroundImage: CachedNetworkImageProvider(
-                              _getImageUrl(bite.user.profileImage),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.userDetails,
+                        arguments: bite.user.id,
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 18,
+                          backgroundColor: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(2.0),
+                            child: CircleAvatar(
+                              radius: 16,
+                              backgroundImage: CachedNetworkImageProvider(
+                                _getImageUrl(bite.user.profileImage),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            bite.user.fullName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(blurRadius: 10, color: Colors.black),
-                              ],
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              bite.user.fullName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                shadows: [
+                                  Shadow(blurRadius: 10, color: Colors.black),
+                                ],
+                              ),
                             ),
-                          ),
-                          Text(
-                            bite.restaurantLocation?['address'] ??
-                                'Unknown Location',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white.withOpacity(0.9),
-                              shadows: const [
-                                Shadow(blurRadius: 10, color: Colors.black),
-                              ],
+                            Text(
+                              bite.restaurantLocation?['address'] ??
+                                  'Unknown Location',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white.withOpacity(0.9),
+                                shadows: const [
+                                  Shadow(blurRadius: 10, color: Colors.black),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Text(
-                        DateFormat.yMMMd().format(bite.createdAt),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withOpacity(0.9),
-                          shadows: const [
-                            Shadow(blurRadius: 10, color: Colors.black),
                           ],
                         ),
-                      ),
-                    ],
+                        const Spacer(),
+                        Text(
+                          DateFormat.yMMMd().format(bite.createdAt),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.9),
+                            shadows: const [
+                              Shadow(blurRadius: 10, color: Colors.black),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Positioned(

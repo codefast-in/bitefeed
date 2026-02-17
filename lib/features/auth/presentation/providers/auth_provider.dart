@@ -105,6 +105,7 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> signup({
     required String fullName,
     required String email,
+    required String phoneNumber,
     required String password,
     required String confirmPassword,
   }) async {
@@ -117,6 +118,7 @@ class AuthProvider extends ChangeNotifier {
       final authResponse = await _authRepository.signup(
         fullName: fullName,
         email: email,
+        phoneNumber: phoneNumber,
         password: password,
         confirmPassword: confirmPassword,
       );
@@ -156,7 +158,9 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      debugPrint('🔐 AuthProvider: Verifying code for $email');
       final result = await _authRepository.verifyCode(email: email, code: code);
+      debugPrint('✅ AuthProvider: Code verified successfully. Result: $result');
       _state = AuthState.unauthenticated;
       notifyListeners();
       return result;
@@ -209,12 +213,15 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      debugPrint('🔐 AuthProvider: Resetting password for $email');
+      debugPrint('🔐 AuthProvider: Token: ${resetToken.substring(0, 5)}...');
       final success = await _authRepository.resetPassword(
         email: email,
         resetToken: resetToken,
         newPassword: newPassword,
         confirmPassword: confirmPassword,
       );
+      debugPrint('✅ AuthProvider: Password reset success = $success');
       _state = AuthState.unauthenticated;
       notifyListeners();
       return success;

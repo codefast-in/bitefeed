@@ -23,10 +23,22 @@ class UserProvider extends ChangeNotifier {
 
   void updateAuth(AuthProvider authProvider) {
     _authProvider = authProvider;
-    // Sync current user from AuthProvider if not loaded here yet
-    if (_currentUser == null && authProvider.currentUser != null) {
-      _currentUser = authProvider.currentUser;
-      _usersCache[_currentUser!.id] = _currentUser!;
+    // Sync current user from AuthProvider. Reset and sync if user changed.
+    if (authProvider.currentUser?.id != _currentUser?.id) {
+      debugPrint(
+        '🔄 UserProvider: User changed from ${_currentUser?.fullName} to ${authProvider.currentUser?.fullName}. Refreshing session...',
+      );
+      if (authProvider.currentUser == null) {
+        clearData();
+      } else {
+        _currentUser = authProvider.currentUser;
+        _usersCache.clear();
+        if (_currentUser != null) {
+          _usersCache[_currentUser!.id] = _currentUser!;
+        }
+        // Load fresh data for the new user
+        loadUserProfile();
+      }
     }
   }
 
@@ -222,20 +234,35 @@ class UserProvider extends ChangeNotifier {
     _errorMessage = 'Following API not yet implemented';
   }
 
-  // Follow user
-  Future<bool> followUser(String userId) async {
+  // Toggle follow user
+  Future<bool> toggleFollowUser(String userId) async {
     try {
       await _userRepository.toggleFollow(userId);
 
-      // Update user in cache
-      if (_usersCache.containsKey(userId)) {
-        final currentFollowers = List<String>.from(
-          _usersCache[userId]!.followers,
+      // Update local state if it's the other user profile being viewed
+      if (_otherUserProfile != null &&
+          _otherUserProfile!.profile.id == userId) {
+        final currentlyFollowing = _otherUserProfile!.profile.isFollowing;
+        final updatedProfile = _otherUserProfile!.profile.copyWith(
+          isFollowing: !currentlyFollowing,
+          followersCount: currentlyFollowing
+              ? (_otherUserProfile!.profile.followersCount - 1)
+                    .clamp(0, 999999)
+                    .toInt()
+              : _otherUserProfile!.profile.followersCount + 1,
         );
-        currentFollowers.add('CURRENT_USER'); // Optimistic update
+        _otherUserProfile = OtherUserProfileModel(
+          profile: updatedProfile,
+          bites: _otherUserProfile!.bites,
+          pagination: _otherUserProfile!.pagination,
+        );
+      }
+
+      // Also update cache if exists
+      if (_usersCache.containsKey(userId)) {
+        final currentlyFollowing = _usersCache[userId]!.isFollowing;
         _usersCache[userId] = _usersCache[userId]!.copyWith(
-          isFollowing: true,
-          followers: currentFollowers,
+          isFollowing: !currentlyFollowing,
         );
       }
 
@@ -243,6 +270,7 @@ class UserProvider extends ChangeNotifier {
       return true;
     } on AppException catch (e) {
       _errorMessage = e.message;
+      notifyListeners();
       return false;
     }
   }
@@ -282,8 +310,8 @@ class UserProvider extends ChangeNotifier {
     try {
       await _userRepository.toggleBlockUser(targetUserId);
 
-      // Refresh blocked users if we were on that screen or just clear/update local state
-      // For simplicity, we just return success and let UI handle refresh or removal
+      _blockedUsers.removeWhere((b) => b.user.id == targetUserId || b.id == targetUserId);
+      notifyListeners();
       return true;
     } on AppException catch (e) {
       _errorMessage = e.message;
@@ -322,33 +350,6 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  // Unfollow user
-  Future<bool> unfollowUser(String userId) async {
-    try {
-      await _userRepository.toggleFollow(userId);
-
-      // Update user in cache
-      if (_usersCache.containsKey(userId)) {
-        final currentFollowers = List<String>.from(
-          _usersCache[userId]!.followers,
-        );
-        if (currentFollowers.isNotEmpty) {
-          currentFollowers.removeLast(); // Remove dummy or optimistic
-        }
-        _usersCache[userId] = _usersCache[userId]!.copyWith(
-          isFollowing: false,
-          followers: currentFollowers,
-        );
-      }
-
-      notifyListeners();
-      return true;
-    } on AppException catch (e) {
-      _errorMessage = e.message;
-      return false;
-    }
-  }
-
   // Change password
   Future<bool> changePassword({
     required String currentPassword,
@@ -381,6 +382,20 @@ class UserProvider extends ChangeNotifier {
   void setCurrentUser(UserModel user) {
     _currentUser = user;
     _usersCache[user.id] = user;
+    notifyListeners();
+  }
+
+  // Reset all state (useful on logout/signup)
+  void clearData() {
+    _currentUser = null;
+    _usersCache.clear();
+    _followers.clear();
+    _following.clear();
+    _otherUserProfile = null;
+    _blockedUsers.clear();
+    _blockedPagination = null;
+    _errorMessage = null;
+    _state = UserState.initial;
     notifyListeners();
   }
 

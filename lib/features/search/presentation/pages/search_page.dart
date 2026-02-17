@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../presentation/providers/search_provider.dart';
+import '../../../auth/data/models/user_model.dart';
+import '../../../bites/models/bite_model.dart';
+import '../../../../core/config/app_config.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -11,56 +16,10 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, dynamic>> _filteredTrending = [];
-  List<Map<String, dynamic>> _filteredNearby = [];
-
-  final List<Map<String, dynamic>> _trendingData = [
-    {
-      'name': 'The Golden Fork',
-      'image': 'assets/images/dish1.png',
-      'rating': 5,
-      'date': '28 November 2025',
-    },
-    {
-      'name': 'Morning Brew Café',
-      'image': 'assets/images/dish2.png',
-      'rating': 5,
-      'date': '28 November 2025',
-    },
-    {
-      'name': 'Sweet Dreams Bakery',
-      'image': 'assets/images/dish3.png',
-      'rating': 5,
-      'date': '28 November 2025',
-    },
-  ];
-
-  final List<Map<String, dynamic>> _nearbyData = [
-    {
-      'name': 'Spice Paradise',
-      'image': 'assets/images/dish4.png',
-      'rating': 5,
-      'date': '28 November 2025',
-    },
-    {
-      'name': 'Ocean Breeze Restaurant',
-      'image': 'assets/images/dish5.png',
-      'rating': 5,
-      'date': '28 November 2025',
-    },
-    {
-      'name': 'Garden Fresh Bistro',
-      'image': 'assets/images/dish1.png',
-      'rating': 5,
-      'date': '28 November 2025',
-    },
-  ];
 
   @override
   void initState() {
     super.initState();
-    _filteredTrending = _trendingData;
-    _filteredNearby = _nearbyData;
   }
 
   @override
@@ -69,26 +28,13 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
-  void _filterResults(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        _filteredTrending = _trendingData;
-        _filteredNearby = _nearbyData;
-      } else {
-        _filteredTrending = _trendingData
-            .where(
-              (item) =>
-                  item['name'].toLowerCase().contains(query.toLowerCase()),
-            )
-            .toList();
-        _filteredNearby = _nearbyData
-            .where(
-              (item) =>
-                  item['name'].toLowerCase().contains(query.toLowerCase()),
-            )
-            .toList();
-      }
-    });
+  void _onQueryChanged(String query) {
+    final provider = context.read<SearchProvider>();
+    if (query.trim().isEmpty) {
+      provider.clearSearch();
+    } else {
+      provider.search(query.trim(), page: 1, limit: 10);
+    }
   }
 
   @override
@@ -159,9 +105,9 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                       child: TextField(
                         controller: _searchController,
-                        onChanged: _filterResults,
+                        onChanged: _onQueryChanged,
                         decoration: InputDecoration(
-                          hintText: 'Cafe',
+                          hintText: 'Search users or cafes',
                           hintStyle: const TextStyle(color: Colors.grey),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(
@@ -172,7 +118,7 @@ class _SearchPageState extends State<SearchPage> {
                               ? GestureDetector(
                                   onTap: () {
                                     _searchController.clear();
-                                    _filterResults('');
+                                    context.read<SearchProvider>().clearSearch();
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.all(12),
@@ -192,46 +138,69 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    if (_filteredTrending.isNotEmpty) ...[
-                      const Text(
-                        'Trending',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ..._filteredTrending.map(
-                        (item) => _buildSearchResultCard(item),
-                      ),
-                    ],
-                    if (_filteredNearby.isNotEmpty) ...[
-                      // const SizedBox(height: 24),
-                      const Text(
-                        'Near By You',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ..._filteredNearby.map(
-                        (item) => _buildSearchResultCard(item),
-                      ),
-                    ],
-                    if (_filteredTrending.isEmpty &&
-                        _filteredNearby.isEmpty) ...[
-                      const SizedBox(height: 40),
-                      Center(
-                        child: Text(
-                          'No results found',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ),
-                    ],
+                    Consumer<SearchProvider>(
+                      builder: (context, provider, _) {
+                        if (provider.isSearching) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 40),
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        }
+
+                        final users = provider.users;
+                        final bites = provider.bites;
+
+                        if (users.isEmpty && bites.isEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 40),
+                            child: Center(
+                              child: Text(
+                                'No results found',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        if (users.isNotEmpty) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Users',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              ...users.map(_buildUserCard),
+                            ],
+                          );
+                        }
+
+                        // Otherwise show cafes (bites) design
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Cafes',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            ...bites.map(_buildCafeCard),
+                          ],
+                        );
+                      },
+                    ),
                     const SizedBox(height: 100),
                   ],
                 ),
@@ -243,9 +212,68 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _buildSearchResultCard(Map<String, dynamic> item) {
+  Widget _buildUserCard(UserModel user) {
+    final imageUrl = _absoluteUrl(
+      (user.profileImage != null && user.profileImage!.isNotEmpty)
+          ? user.profileImage!
+          : null,
+    );
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, AppRoutes.postDetails),
+      onTap: () => Navigator.pushNamed(
+        context,
+        AppRoutes.userDetails,
+        arguments: user.id,
+      ),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(40),
+              child: Image.network(
+                imageUrl,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                user.fullName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const Icon(Icons.chevron_right),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCafeCard(BiteModel bite) {
+    final imageUrl = _absoluteUrl(
+      (bite.photos.isNotEmpty) ? bite.photos.first : null,
+    );
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, AppRoutes.postDetails, arguments: bite),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
@@ -264,8 +292,8 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                item['image'],
+              child: Image.network(
+                imageUrl,
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
@@ -278,27 +306,25 @@ class _SearchPageState extends State<SearchPage> {
                 children: [
                   Row(
                     children: List.generate(
-                      item['rating'],
-                      (index) => Image.asset(
-                        'assets/icons/postStarFillIcon.png',
-                        width: 16,
-                        height: 16,
-                        color: AppColors.primaryOrange,
+                      5,
+                      (index) => Icon(
+                        Icons.star,
+                        size: 16,
+                        color: index < bite.rating.toInt()
+                            ? AppColors.primaryOrange
+                            : Colors.grey[300],
                       ),
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    item['name'],
+                    bite.restaurantName,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    item['date'],
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -320,5 +346,15 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
     );
+  }
+
+  String _absoluteUrl(String? path) {
+    if (path == null || path.isEmpty) {
+      return 'https://i.pravatar.cc/150';
+    }
+    if (path.startsWith('http')) return path;
+    final base = AppConfig.apiBaseUrl.replaceAll('/api/v1', '');
+    final normalized = path.startsWith('/') ? path : '/$path';
+    return '$base$normalized';
   }
 }

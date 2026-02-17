@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../settings/presentation/providers/user_provider.dart';
 
 class NotificationPermissionPage extends StatelessWidget {
   const NotificationPermissionPage({super.key});
@@ -13,7 +16,7 @@ class NotificationPermissionPage extends StatelessWidget {
       body: Container(
         height: size.height,
         width: size.width,
-        decoration: BoxDecoration(gradient: AppColors.bgGradient, ),
+        decoration: BoxDecoration(gradient: AppColors.bgGradient),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -77,7 +80,10 @@ class NotificationPermissionPage extends StatelessWidget {
                       const Text(
                         'Enable Notifications To See When Friends Interact With Your Bites.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: AppColors.textGrey, height: 1.5),
+                        style: TextStyle(
+                          color: AppColors.textGrey,
+                          height: 1.5,
+                        ),
                       ),
                       const SizedBox(height: 32),
                       SizedBox(
@@ -89,11 +95,22 @@ class NotificationPermissionPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(28),
                           ),
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(
-                                context,
-                                AppRoutes.locationPermission,
-                              );
+                            onPressed: () async {
+                              final status = await Permission.notification
+                                  .request();
+                              if (context.mounted) {
+                                if (status.isGranted) {
+                                  await context
+                                      .read<UserProvider>()
+                                      .updateProfile(
+                                        notificationsEnabled: true,
+                                      );
+                                }
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.locationPermission,
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,

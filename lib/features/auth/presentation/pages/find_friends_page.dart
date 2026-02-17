@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../settings/presentation/providers/user_provider.dart';
 
 class FindFriendsPage extends StatelessWidget {
   const FindFriendsPage({super.key});
@@ -13,7 +16,7 @@ class FindFriendsPage extends StatelessWidget {
       body: Container(
         height: size.height,
         width: size.width,
-        decoration: BoxDecoration(gradient: AppColors.bgGradient, ),
+        decoration: BoxDecoration(gradient: AppColors.bgGradient),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -116,11 +119,20 @@ class FindFriendsPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(28),
                           ),
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(
-                                context,
-                                AppRoutes.notificationPermission,
-                              );
+                            onPressed: () async {
+                              final status = await Permission.contacts
+                                  .request();
+                              if (context.mounted) {
+                                if (status.isGranted) {
+                                  await context
+                                      .read<UserProvider>()
+                                      .updateProfile(contactsSynced: true);
+                                }
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.notificationPermission,
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
@@ -142,7 +154,6 @@ class FindFriendsPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       TextButton(
-
                         onPressed: () {
                           Navigator.pushNamed(
                             context,

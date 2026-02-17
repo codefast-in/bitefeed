@@ -4,6 +4,7 @@ class UserModel extends Equatable {
   final String id;
   final String fullName;
   final String email;
+  final String? phoneNumber;
   final String? username;
   final String? profileImage;
   final List<String> foodPreferences;
@@ -16,21 +17,21 @@ class UserModel extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  // New field
+  // New fields from API
   final List<String> followers;
   final List<String> following;
+  final int followersCount;
+  final int followingCount;
+  final int bitesCount;
   final String? role;
   final String? status;
   final bool profileSetupComplete;
-
-  // Derived properties for counts
-  int get followersCount => followers.length;
-  int get followingCount => following.length;
 
   const UserModel({
     required this.id,
     required this.fullName,
     required this.email,
+    this.phoneNumber,
     this.username,
     this.profileImage,
     this.foodPreferences = const [],
@@ -40,6 +41,9 @@ class UserModel extends Equatable {
     this.locationEnabled = false,
     this.followers = const [],
     this.following = const [],
+    this.followersCount = 0,
+    this.followingCount = 0,
+    this.bitesCount = 0,
     this.role,
     this.status,
     this.profileSetupComplete = false,
@@ -53,6 +57,7 @@ class UserModel extends Equatable {
       id: json['_id'] ?? json['id'] ?? '',
       fullName: json['fullName'] ?? '',
       email: json['email'] ?? '',
+      phoneNumber: json['phoneNumber'] ?? json['phone'],
       username: json['username'],
       profileImage: json['profileImage'],
       foodPreferences: json['foodPreferences'] != null
@@ -70,6 +75,11 @@ class UserModel extends Equatable {
       following: json['following'] != null
           ? List<String>.from(json['following'])
           : [],
+      followersCount:
+          json['followersCount'] ?? (json['followers'] as List?)?.length ?? 0,
+      followingCount:
+          json['followingCount'] ?? (json['following'] as List?)?.length ?? 0,
+      bitesCount: json['bitesCount'] ?? 0,
       role: json['role'],
       status: json['status'],
       profileSetupComplete: json['profileSetupComplete'] ?? false,
@@ -88,6 +98,7 @@ class UserModel extends Equatable {
       '_id': id,
       'fullName': fullName,
       'email': email,
+      'phoneNumber': phoneNumber,
       'username': username,
       'profileImage': profileImage,
       'foodPreferences': foodPreferences,
@@ -97,6 +108,9 @@ class UserModel extends Equatable {
       'locationEnabled': locationEnabled,
       'followers': followers,
       'following': following,
+      'followersCount': followersCount,
+      'followingCount': followingCount,
+      'bitesCount': bitesCount,
       'role': role,
       'status': status,
       'profileSetupComplete': profileSetupComplete,
@@ -110,6 +124,7 @@ class UserModel extends Equatable {
     String? id,
     String? fullName,
     String? email,
+    String? phoneNumber,
     String? username,
     String? profileImage,
     List<String>? foodPreferences,
@@ -119,6 +134,9 @@ class UserModel extends Equatable {
     bool? locationEnabled,
     List<String>? followers,
     List<String>? following,
+    int? followersCount,
+    int? followingCount,
+    int? bitesCount,
     String? role,
     String? status,
     bool? profileSetupComplete,
@@ -130,6 +148,7 @@ class UserModel extends Equatable {
       id: id ?? this.id,
       fullName: fullName ?? this.fullName,
       email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       username: username ?? this.username,
       profileImage: profileImage ?? this.profileImage,
       foodPreferences: foodPreferences ?? this.foodPreferences,
@@ -140,6 +159,9 @@ class UserModel extends Equatable {
       locationEnabled: locationEnabled ?? this.locationEnabled,
       followers: followers ?? this.followers,
       following: following ?? this.following,
+      followersCount: followersCount ?? this.followersCount,
+      followingCount: followingCount ?? this.followingCount,
+      bitesCount: bitesCount ?? this.bitesCount,
       role: role ?? this.role,
       status: status ?? this.status,
       profileSetupComplete: profileSetupComplete ?? this.profileSetupComplete,
@@ -154,6 +176,7 @@ class UserModel extends Equatable {
     id,
     fullName,
     email,
+    phoneNumber,
     username,
     profileImage,
     foodPreferences,
@@ -163,6 +186,9 @@ class UserModel extends Equatable {
     locationEnabled,
     followers,
     following,
+    followersCount,
+    followingCount,
+    bitesCount,
     role,
     status,
     profileSetupComplete,

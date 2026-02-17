@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../providers/user_provider.dart';
+import '../../../../core/config/app_config.dart';
 
-class BlockListPage extends StatelessWidget {
+class BlockListPage extends StatefulWidget {
   const BlockListPage({super.key});
+
+  @override
+  State<BlockListPage> createState() => _BlockListPageState();
+}
+
+class _BlockListPageState extends State<BlockListPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserProvider>().loadBlockedUsers(page: 1, limit: 10);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,27 +49,71 @@ class BlockListPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: SafeArea(
-        top: false,
-        left: false,
-        right: false,
-        bottom: true,
-        child: ListView.separated(
-          padding: const EdgeInsets.all(20),
-          itemCount: 8,
-          separatorBuilder: (context, index) => const SizedBox(height: 16),
-          itemBuilder: (context, index) {
-            return _buildBlockItem(index);
-          },
-        ),
+      body: Consumer<UserProvider>(
+        builder: (context, provider, _) {
+          final isLoading = provider.isLoading;
+          final blocked = provider.blockedUsers;
+          if (isLoading && blocked.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (blocked.isEmpty) {
+            return const Center(child: Text('No blocked users'));
+          }
+          return SafeArea(
+            top: false,
+            left: false,
+            right: false,
+            bottom: true,
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await provider.loadBlockedUsers(page: 1, limit: 10);
+              },
+              child: ListView.separated(
+                padding: const EdgeInsets.all(20),
+                itemCount: blocked.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
+                itemBuilder: (context, index) {
+                  final item = blocked[index];
+                  return _buildBlockItem(
+                    name: item.user.fullName,
+                    imageUrl: item.user.profileImage,
+                    onUnblock: () async {
+                      final ok =
+                          await context.read<UserProvider>().toggleBlockUser(
+                                item.user.id,
+                              );
+                      if (!mounted) return;
+                      if (ok) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('User unblocked')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              provider.errorMessage ??
+                                  'Failed to unblock user',
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildBlockItem(int index) {
-    final names = ['Sarah Johnson', 'Mike Chen', 'Emma Davis'];
-    final name = names[index % names.length];
-
+  Widget _buildBlockItem({
+    required String name,
+    String? imageUrl,
+    required VoidCallback onUnblock,
+  }) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -72,7 +132,7 @@ class BlockListPage extends StatelessWidget {
           CircleAvatar(
             radius: 24,
             backgroundImage: NetworkImage(
-              'https://i.pravatar.cc/150?u=${index + 10}',
+              _absoluteUrl(imageUrl),
             ),
           ),
           const SizedBox(width: 16),
@@ -80,6 +140,8 @@ class BlockListPage extends StatelessWidget {
             child: Text(
               name,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Container(
@@ -91,13 +153,13 @@ class BlockListPage extends StatelessWidget {
                 BoxShadow(
                   color: Colors.black26,
                   blurRadius: 12,
-                  offset: const Offset(0, 4), // subtle lift
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
 
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: onUnblock,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 shadowColor: Colors.transparent,
@@ -119,5 +181,15 @@ class BlockListPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _absoluteUrl(String? path) {
+    if (path == null || path.isEmpty) {
+      return 'https://i.pravatar.cc/150';
+    }
+    if (path.startsWith('http')) return path;
+    final base = AppConfig.apiBaseUrl.replaceAll('/api/v1', '');
+    final normalized = path.startsWith('/') ? path : '/$path';
+    return '$base$normalized';
   }
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../settings/presentation/providers/user_provider.dart';
 
 class LocationPermissionPage extends StatelessWidget {
   const LocationPermissionPage({super.key});
@@ -12,7 +15,7 @@ class LocationPermissionPage extends StatelessWidget {
       body: Container(
         height: size.height,
         width: size.width,
-        decoration: BoxDecoration(gradient: AppColors.bgGradient, ),
+        decoration: BoxDecoration(gradient: AppColors.bgGradient),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -76,7 +79,10 @@ class LocationPermissionPage extends StatelessWidget {
                       const Text(
                         'Allow Location To Auto-Tag Restaurants And Discover Great Food Near You.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: AppColors.textGrey, height: 1.5),
+                        style: TextStyle(
+                          color: AppColors.textGrey,
+                          height: 1.5,
+                        ),
                       ),
                       const SizedBox(height: 32),
                       SizedBox(
@@ -88,12 +94,21 @@ class LocationPermissionPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(28),
                           ),
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                '/main',
-                                (route) => false,
-                              );
+                            onPressed: () async {
+                              final status = await Permission.location
+                                  .request();
+                              if (context.mounted) {
+                                if (status.isGranted) {
+                                  await context
+                                      .read<UserProvider>()
+                                      .updateProfile(locationEnabled: true);
+                                }
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  '/main',
+                                  (route) => false,
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,

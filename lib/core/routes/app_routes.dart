@@ -78,12 +78,24 @@ class AppRoutes {
       return VerificationCodePage(email: email);
     },
     createNewPassword: (context) {
-      final args =
-          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-      return CreateNewPasswordPage(
-        email: args['email'],
-        resetToken: args['resetToken'],
-      );
+      final args = ModalRoute.of(context)?.settings.arguments;
+
+      if (args == null || args is! Map<String, dynamic>) {
+        return const Scaffold(
+          body: Center(child: Text("Invalid navigation arguments")),
+        );
+      }
+
+      final email = args['email'] as String?;
+      final resetToken = args['resetToken'] as String?;
+
+      if (email == null || resetToken == null) {
+        return const Scaffold(
+          body: Center(child: Text("Missing required parameters")),
+        );
+      }
+
+      return CreateNewPasswordPage(email: email, resetToken: resetToken);
     },
     passwordChangedSuccess: (context) => const PasswordChangedSuccessPage(),
     createProfile: (context) => const CreateProfilePage(),
@@ -106,7 +118,10 @@ class AppRoutes {
     contactUs: (context) => const ContactUsPage(),
     followers: (context) => const FollowersPage(),
     following: (context) => const FollowingPage(),
-    userDetails: (context) => const UserDetailsPage(),
+    userDetails: (context) {
+      final userId = ModalRoute.of(context)!.settings.arguments as String;
+      return UserDetailsPage(userId: userId);
+    },
     myPosts: (context) => const MyPostsPage(),
     chat: (context) => const ChatPage(),
     groupMembers: (context) => const GroupMembersPage(),

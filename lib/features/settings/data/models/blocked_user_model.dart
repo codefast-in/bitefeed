@@ -13,9 +13,11 @@ class BlockedUserModel extends Equatable {
   });
 
   factory BlockedUserModel.fromJson(Map<String, dynamic> json) {
+    final nestedUser = json['user'] ?? json['blockedUser'];
+    final userPayload = nestedUser ?? json;
     return BlockedUserModel(
-      id: json['_id'] ?? json['id'] ?? '',
-      user: UserModel.fromJson(json['user'] ?? json['blockedUser'] ?? {}),
+      id: json['_id'] ?? json['id'] ?? userPayload['_id'] ?? '',
+      user: UserModel.fromJson(userPayload ?? {}),
       blockedAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),

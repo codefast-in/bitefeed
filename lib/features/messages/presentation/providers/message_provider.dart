@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import 'package:bitefeed/features/messages/data/repositories/message_repository.dart';
 import 'package:bitefeed/features/messages/data/models/message_model.dart';
 import 'package:bitefeed/core/network/api_exception.dart';
@@ -31,6 +32,28 @@ class MessageProvider extends ChangeNotifier {
 
   List<MessageModel> getMessages(String conversationId) {
     return _messagesByConversation[conversationId] ?? [];
+  }
+
+  // Sync with AuthProvider
+  void updateAuth(AuthProvider authProvider) {
+    if (authProvider.state == AuthState.unauthenticated) {
+      clearData();
+    } else if (authProvider.isAuthenticated) {
+      // Basic check: if we have conversations but they might belong to old user
+      // MessageProvider currently doesn't store currentUserId, so we might need to clear on any auth change
+      // or if we detect a fresh login.
+    }
+  }
+
+  // Reset all state (useful on logout/signup)
+  void clearData() {
+    _conversations = [];
+    _messagesByConversation = {};
+    _currentThread = null;
+    _currentConversationId = null;
+    _errorMessage = null;
+    _state = MessagesState.initial;
+    notifyListeners();
   }
 
   // Load conversations

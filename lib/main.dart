@@ -44,10 +44,17 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<AuthProvider>(
           create: (_) => AuthProvider()..initialize(),
         ),
-        ChangeNotifierProvider<PostProvider>(create: (_) => PostProvider()),
-        ChangeNotifierProvider<BiteProvider>(create: (_) => BiteProvider()),
-        ChangeNotifierProvider<MessageProvider>(
+        ChangeNotifierProxyProvider<AuthProvider, PostProvider>(
+          create: (_) => PostProvider(),
+          update: (_, auth, post) => post!..updateAuth(auth),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, BiteProvider>(
+          create: (_) => BiteProvider(),
+          update: (_, auth, bite) => bite!..updateAuth(auth),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, MessageProvider>(
           create: (_) => MessageProvider(),
+          update: (_, auth, message) => message!..updateAuth(auth),
         ),
         ChangeNotifierProxyProvider<AuthProvider, UserProvider>(
           create: (_) => UserProvider(),

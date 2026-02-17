@@ -1,105 +1,157 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../providers/user_provider.dart';
+import '../../../bites/presentation/widgets/bite_list_item.dart';
+import '../../../../core/config/app_config.dart';
 
-class UserDetailsPage extends StatelessWidget {
-  const UserDetailsPage({super.key});
+class UserDetailsPage extends StatefulWidget {
+  final String userId;
+  const UserDetailsPage({super.key, required this.userId});
+
+  @override
+  State<UserDetailsPage> createState() => _UserDetailsPageState();
+}
+
+class _UserDetailsPageState extends State<UserDetailsPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserProvider>().loadOtherUserProfile(widget.userId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0, // 👈 Prevents color change on scroll
-        surfaceTintColor: Colors.transparent,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
-          child: CustomPaint(painter: _GridPainter()),
-        ),
-        leading: IconButton(
-          icon: Image.asset(
-            'assets/icons/whiteBackIcon.png',
-            width: 20,
-            height: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Image.asset(
-              'assets/icons/otherUserDetailsOptionsIcon.png',
-              width: 24,
-              height: 24,
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final otherUser = userProvider.otherUserProfile;
+        final isLoading = userProvider.isLoading;
 
-              // color: Colors.white,
-            ),
-            color: Colors.white,
-            padding: EdgeInsets.fromLTRB(0, 0, 28, 0),
-            onSelected: (value) {
-              if (value == 'Block') {
-                _showBlockDialog(context);
-              } else if (value == 'Report') {
-                _showReportDialog(context);
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return {'Block', 'Report'}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  height: 40,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Text(choice, style: const TextStyle(fontSize: 14)),
-                );
-              }).toList();
-            },
-          ),
-        ],
-      ),
-      body: SafeArea(
-        top: false,
-        left: false,
-        right: false,
-        bottom: true,
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(child: _buildProfileHeader(context)),
-            SliverPadding(
-              padding: const EdgeInsets.all(16.0),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => _buildPostItem(context, index),
-                  childCount: 3,
-                ),
+        return Scaffold(
+          backgroundColor: Colors.white,
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            surfaceTintColor: Colors.transparent,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: AppColors.primaryGradient,
               ),
+              child: CustomPaint(painter: _GridPainter()),
             ),
-          ],
-        ),
-      ),
+            leading: IconButton(
+              icon: Image.asset(
+                'assets/icons/whiteBackIcon.png',
+                width: 20,
+                height: 20,
+              ),
+              onPressed: () => Navigator.pop(context),
+            ),
+            actions: [
+              if (otherUser != null)
+                PopupMenuButton<String>(
+                  icon: Image.asset(
+                    'assets/icons/otherUserDetailsOptionsIcon.png',
+                    width: 24,
+                    height: 24,
+                  ),
+                  color: Colors.white,
+                  padding: const EdgeInsets.fromLTRB(0, 0, 28, 0),
+                  onSelected: (value) {
+                    if (value == 'Block') {
+                      _showBlockDialog(context, otherUser.profile.id);
+                    } else if (value == 'Report') {
+                      _showReportDialog(context);
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return {'Block', 'Report'}.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        height: 40,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          choice,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      );
+                    }).toList();
+                  },
+                ),
+            ],
+          ),
+          body: isLoading && otherUser == null
+              ? const Center(child: CircularProgressIndicator())
+              : SafeArea(
+                  top: false,
+                  left: false,
+                  right: false,
+                  bottom: true,
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: _buildProfileHeader(context, userProvider),
+                      ),
+                      if (otherUser != null && otherUser.bites.isNotEmpty)
+                        SliverPadding(
+                          padding: const EdgeInsets.all(16.0),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) => BiteListItem(
+                                bite: otherUser.bites[index],
+                                onShare: () {},
+                              ),
+                              childCount: otherUser.bites.length,
+                            ),
+                          ),
+                        )
+                      else if (otherUser != null)
+                        const SliverFillRemaining(
+                          child: Center(
+                            child: Text(
+                              'No bites yet',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+        );
+      },
     );
   }
 
-  void _showBlockDialog(BuildContext context) {
+  void _showBlockDialog(BuildContext context, String targetUserId) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Block User'),
         content: const Text('Are you sure you want to block this user?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('User Blocked')));
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              final success = await context
+                  .read<UserProvider>()
+                  .toggleBlockUser(targetUserId);
+              if (success && mounted) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('User Blocked')));
+                Navigator.pop(context); // Go back after blocking
+              }
             },
             child: const Text('Block', style: TextStyle(color: Colors.red)),
           ),
@@ -133,36 +185,40 @@ class UserDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHeader(BuildContext context) {
+  Widget _buildProfileHeader(BuildContext context, UserProvider userProvider) {
     final size = MediaQuery.of(context).size;
+    final otherUser = userProvider.otherUserProfile;
+    if (otherUser == null) return const SizedBox.shrink();
+
+    final profile = otherUser.profile;
+
     return Container(
       decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
       padding: const EdgeInsets.only(bottom: 24),
       child: Stack(
         children: [
-          // Grid background pattern
           Positioned.fill(child: CustomPaint(painter: _GridPainter())),
           Column(
             children: [
               Container(
                 width: 100,
                 height: 100,
-                margin: EdgeInsets.only(top: size.height * 0.1),
+                margin: EdgeInsets.only(top: size.height * 0.12),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 3),
-                  image: const DecorationImage(
+                  image: DecorationImage(
                     image: NetworkImage(
-                      'https://i.pravatar.cc/150?u=123',
-                    ), // Placeholder
+                      _absoluteUrl(profile.profileImage),
+                    ),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Sarah Johnson',
-                style: TextStyle(
+              Text(
+                profile.fullName,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -172,11 +228,11 @@ class UserDetailsPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildStatItem('85k', 'Followers'),
-                  Container(height: 40, width: 30, color: Colors.transparent),
+                  _buildStatItem('${profile.followersCount}', 'Followers'),
+                  const SizedBox(width: 30),
                   Container(height: 40, width: 1, color: Colors.white24),
-                  Container(height: 40, width: 30, color: Colors.transparent),
-                  _buildStatItem('150', 'Following'),
+                  const SizedBox(width: 30),
+                  _buildStatItem('${profile.followingCount}', 'Following'),
                 ],
               ),
               const SizedBox(height: 24),
@@ -187,17 +243,24 @@ class UserDetailsPage extends StatelessWidget {
                     width: 140,
                     height: 45,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        userProvider.toggleFollowUser(profile.id);
+                      },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
+                        backgroundColor: profile.isFollowing
+                            ? Colors.white24
+                            : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
+                        elevation: 0,
                       ),
-                      child: const Text(
-                        'Follow',
+                      child: Text(
+                        profile.isFollowing ? 'Unfollow' : 'Follow',
                         style: TextStyle(
-                          color: Colors.black,
+                          color: profile.isFollowing
+                              ? Colors.white
+                              : Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -209,21 +272,29 @@ class UserDetailsPage extends StatelessWidget {
                     height: 45,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Navigate to chat? or just visual for now
+                        // Navigate to chat
+                        Navigator.pushNamed(
+                          context,
+                          '/chat',
+                          arguments: {
+                            'userId': profile.id,
+                            'fullName': profile.fullName,
+                          },
+                        );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors
-                            .white, // In design it looks white/transparent
+                        backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
+                        elevation: 0,
                       ),
                       child: const Text(
                         'Message',
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
-                        ), // Checking design color.. usually secondary action
+                        ),
                       ),
                     ),
                   ),
@@ -234,6 +305,16 @@ class UserDetailsPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _absoluteUrl(String? path) {
+    if (path == null || path.isEmpty) {
+      return 'https://i.pravatar.cc/150';
+    }
+    if (path.startsWith('http')) return path;
+    final base = AppConfig.apiBaseUrl.replaceAll('/api/v1', '');
+    final normalized = path.startsWith('/') ? path : '/$path';
+    return '$base$normalized';
   }
 
   Widget _buildStatItem(String value, String label) {
@@ -254,171 +335,8 @@ class UserDetailsPage extends StatelessWidget {
       ],
     );
   }
-
-  // Re-implementation of feed item for User Details
-  Widget _buildPostItem(BuildContext context, int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-            child: Stack(
-              children: [
-                Image.asset(
-                  'assets/images/dish${(index % 2) + 1}.png',
-                  height: 200, // Slightly smaller than feed
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-                Positioned(
-                  top: 12,
-                  left: 12,
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundImage: NetworkImage(
-                          'https://i.pravatar.cc/150?u=123',
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Sarah Johnson',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(color: Colors.black54, blurRadius: 2),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            'Midtown, 0.8 Mi',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.white.withOpacity(0.9),
-                              shadows: const [
-                                Shadow(color: Colors.black54, blurRadius: 2),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                // Star rating indicator
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.star, color: Colors.orange, size: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${4 + (index % 2)}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 12,
-                  right: 12,
-                  child: Image.asset(
-                    'assets/icons/postMessageIcon.png',
-                    width: 40,
-                    height: 40,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.favorite_border, size: 20),
-                    const SizedBox(width: 4),
-                    const Text('1203'),
-                    const SizedBox(width: 16),
-                    const Icon(Icons.chat_bubble_outline, size: 20),
-                    const SizedBox(width: 4),
-                    const Text('85'),
-                    const Spacer(),
-                    Image.asset(
-                      'assets/icons/postSaveIcon.png',
-                      width: 20,
-                      height: 20,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'The Golden Fork',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Best Pasta Carbonara I\'ve Ever Had! Creamy, Authentic...',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  '#Italian #Pasta #MustTry',
-                  style: TextStyle(
-                    color: AppColors.primaryOrange,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-// Grid painter for background pattern
 class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -429,12 +347,10 @@ class _GridPainter extends CustomPainter {
 
     const gridSize = 60.0;
 
-    // Draw vertical lines
     for (double i = 0; i < size.width; i += gridSize) {
       canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
     }
 
-    // Draw horizontal lines
     for (double i = 0; i < size.height; i += gridSize) {
       canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
     }

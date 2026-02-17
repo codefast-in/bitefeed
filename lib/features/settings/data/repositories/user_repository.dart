@@ -119,7 +119,7 @@ class UserRepository {
     }
   }
 
-  // Follow/Unfollow user
+  // Follow/Unfollow user (Toggle)
   Future<bool> toggleFollow(String userId) async {
     try {
       await _apiClient.post(ApiEndpoints.followUser, data: {'userId': userId});
@@ -194,7 +194,8 @@ class UserRepository {
         );
       }
 
-      final List<dynamic> results = data['data']?['results'] ?? [];
+      final List<dynamic> results =
+          data['data']?['blockedUsers'] ?? data['blockedUsers'] ?? [];
       final users = results.map((u) => BlockedUserModel.fromJson(u)).toList();
       final pagination = PaginationModel.fromJson(
         data['data']?['pagination'] ?? {},

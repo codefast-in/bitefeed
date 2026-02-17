@@ -15,12 +15,19 @@ class OtherUserProfileModel extends Equatable {
   });
 
   factory OtherUserProfileModel.fromJson(Map<String, dynamic> json) {
+    final bitesData = json['bites'];
+    final bitesList = (bitesData is Map)
+        ? (bitesData['list'] as List?)
+        : (bitesData as List?);
+
     return OtherUserProfileModel(
       profile: UserModel.fromJson(json['profile'] ?? {}),
-      bites: (json['bites'] as List? ?? [])
+      bites: (bitesList ?? [])
           .map((b) => BiteModel.fromJson(b as Map<String, dynamic>))
           .toList(),
-      pagination: PaginationModel.fromJson(json['pagination'] ?? {}),
+      pagination: PaginationModel.fromJson(
+        json['pagination'] ?? bitesData ?? {},
+      ),
     );
   }
 

@@ -21,6 +21,7 @@ class AuthRepository {
   Future<AuthResponseModel> signup({
     required String fullName,
     required String email,
+    required String phoneNumber,
     required String password,
     required String confirmPassword,
   }) async {
@@ -31,6 +32,7 @@ class AuthRepository {
         data: {
           'fullName': fullName,
           'email': email,
+          'phoneNumber': phoneNumber,
           'password': password,
           'confirmPassword': confirmPassword,
         },

@@ -59,7 +59,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
           // Provider returns whatever repository returns?
           // I should verify AuthProvider implementation.
 
-          final resetToken = response['resetToken'];
+          final resetToken = response['data']?['resetToken'];
 
           Navigator.pushNamed(
             context,
